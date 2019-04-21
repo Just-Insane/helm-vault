@@ -42,6 +42,7 @@ Helm-Vault supports the following features:
   - [X] Upgrade
   - [X] Template
   - [X] Lint
+  - [X] Diff
 
 Helm-Vault was created to provide a better way to manage secrets for Helm, with the ability to take existing public Helm Charts, and with minimal modification, provide a way to have production data that is not stored in a public location.
 
@@ -265,7 +266,7 @@ $ helm vault template ./nextcloud --name nextcloud --namespace nextcloud -f valu
 The operation wraps the default `helm upgrade` command, automatically decrypting the `-f values.yaml` file and then cleaning up afterwards.
 
 ```
-$ helm vault upgrade nextcloud stable/nextcloud -f ./tests/test.yaml
+$ helm vault upgrade nextcloud stable/nextcloud -f values.yaml
 ```
 
 1. Run `helm upgrade` with the following options:
@@ -278,11 +279,24 @@ $ helm vault upgrade nextcloud stable/nextcloud -f ./tests/test.yaml
 The operation wraps the default `helm lint` command, automatically decrypting the `-f values.yaml` file and then cleaning up afterwards.
 
 ```
-$ helm vault lint nextcloud -f ./tests/test.yaml
+$ helm vault lint nextcloud -f values.yaml
 ```
 
 1. Run `helm upgrade` with the following options:
   1. `nextcloud` - the Helm release name
+  1. `-f values.yaml` - the (encrypted) values file to use
+
+#### Diff
+
+The operation wraps the `helm diff` command (diff is another Helm plugin), automatically decrypting the `-f values.yaml` file and then cleaning up afterwards.
+
+```
+$ helm vault diff upgrade nextcloud stable/nextcloud -f values.yaml
+```
+
+1. Run `helm diff upgrade` with the following options:
+  1. `nextcloud` - the Helm release name
+  1. `stable/nextcloud` - the Helm chart
   1. `-f values.yaml` - the (encrypted) values file to use
 
 **[Back to top](#table-of-contents)**
