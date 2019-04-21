@@ -1,0 +1,7 @@
+name: "vault"
+version: "0.1.3"
+usage: "Store secrets in Hashicorp Vault"
+description: |-
+  Helm plugin for storing secrets in HashiCorp Vault
+command: "$HELM_PLUGIN_DIR/src/vault.py"
+ignoreFlags: false
