@@ -37,6 +37,11 @@ Helm-Vault supports the following features:
 - [X] View decrypted YAML files
 - [X] Edit decrypted YAML files
 - [X] Clean up decrypted YAML files
+- [X] Helm Wrapper, automatically decrypts and cleans up during helm commands
+  - [X] Install
+  - [X] Upgrade
+  - [X] Template
+  - [X] Lint
 
 Helm-Vault was created to provide a better way to manage secrets for Helm, with the ability to take existing public Helm Charts, and with minimal modification, provide a way to have production data that is not stored in a public location.
 
