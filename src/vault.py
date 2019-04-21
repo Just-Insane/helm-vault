@@ -99,6 +99,14 @@ def parse_args(args):
     lint.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     lint.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
+    # Diff Help
+    diff = subparsers.add_parser("diff", help="Wrapper that decrypts YAML files before running helm diff")
+    diff.add_argument("-f", "--values", type=str, dest="yaml_file", help="The encrypted YAML file to decrypt on the fly")
+    diff.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
+    diff.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    diff.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
+    diff.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+
     return parser
 
 class Git:
@@ -305,7 +313,7 @@ def dict_walker(pattern, data, args, envs, path=None):
                     data[key] = input(f"Input a value for {path}/{key}: ")
                     vault = Vault(args, envs)
                     vault.vault_write(data[key], path, key)
-                elif (action == "dec") or (action == "view") or (action == "edit") or (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint"):
+                elif (action == "dec") or (action == "view") or (action == "edit") or (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
                     vault = Vault(args, envs)
                     vault = vault.vault_read(value, path, key)
                     value = vault
@@ -348,7 +356,7 @@ def main(argv=None):
         yaml.dump(data, open(f"{yaml_file}.dec", "w"))
         os.system(envs[2] + ' ' + f"{yaml_file}.dec")
     # These Helm commands are only different due to passed variables
-    elif (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint"):
+    elif (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
         yaml.dump(data, open(f"{yaml_file}.dec", "w"))
         leftovers = ' '.join(leftovers)
 
@@ -358,7 +366,6 @@ def main(argv=None):
             print(f"Error: {ex}")
 
         cleanup(args)
-
 
 if __name__ == "__main__":
     try:
