@@ -190,6 +190,7 @@ class Vault:
         self.folder = os.path.basename(self.folder)
         self.kvversion = envs[3]
 
+        # Setup Vault client (hvac)
         try:
             self.client = hvac.Client(url=os.environ["VAULT_ADDR"], token=os.environ["VAULT_TOKEN"])
         except KeyError:
@@ -198,6 +199,7 @@ class Vault:
             print(f"ERROR: {ex}")
 
     def vault_write(self, value, path, key):
+        # Write to vault, using the correct Vault KV version
         if self.kvversion == "v1":
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
@@ -230,6 +232,7 @@ class Vault:
 
 
     def vault_read(self, value, path, key):
+        # Read from Vault, using the correct Vault KV version
         if self.kvversion == "v1":
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
@@ -265,6 +268,7 @@ class Vault:
             print("Wrong KV Version specified, either v1 or v2")
 
 def load_yaml(yaml_file):
+    # Load the YAML file
     yaml = ruamel.yaml.YAML()
     yaml.preserve_quotes = True
     with open(yaml_file) as filepath:
@@ -272,6 +276,7 @@ def load_yaml(yaml_file):
         return data
 
 def cleanup(args):
+    # Cleanup decrypted files
     yaml_file = args.yaml_file
     try:
         os.remove(f"{yaml_file}.dec")
@@ -290,6 +295,7 @@ def cleanup(args):
         sys.exit()
 
 def dict_walker(pattern, data, args, envs, path=None):
+    # Walk through the loaded dicts looking for the values we want
     path = path if path is not None else ""
     action = args.action
     if isinstance(data, dict):
@@ -313,6 +319,8 @@ def dict_walker(pattern, data, args, envs, path=None):
 
 def main(argv=None):
 
+    # Parse arguments from argparse
+    # This is outside of the parse_arg function because of issues returning multiple named values from a function
     parsed = parse_args(argv)
     args, leftovers = parsed.parse_known_args(argv)
 
@@ -339,6 +347,7 @@ def main(argv=None):
     elif action == "edit":
         yaml.dump(data, open(f"{yaml_file}.dec", "w"))
         os.system(envs[2] + ' ' + f"{yaml_file}.dec")
+    # These Helm commands are only different due to passed variables
     elif (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint"):
         yaml.dump(data, open(f"{yaml_file}.dec", "w"))
         leftovers = ' '.join(leftovers)
