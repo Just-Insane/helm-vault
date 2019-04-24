@@ -56,11 +56,11 @@ Input a value for /nextcloud/password:
 
 # Project Status
 
-Show the build status if you have a CI server:
+Build Status:
 
 [![Build Status](https://gitlab.com/just.insane/helm-vault/badges/master/build.svg)](https://gitlab.com/just.insane/helm-vault/badges/master/build.svg)
 
-Helm-Vault is in an pre-production state currently. It should work across platforms, and should be able to handle most YAML thrown at it, but it is missing some features, like a helm wrapper.
+Helm-Vault is in an pre-production state currently. It should work across platforms, and should be able to handle most YAML thrown at it, but it is missing some features.
 
 **[Back to top](#table-of-contents)**
 
