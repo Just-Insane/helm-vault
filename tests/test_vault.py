@@ -59,6 +59,18 @@ def test_enc():
         'Input a value for /mariadb/db/password: ',
     ]
 
+def test_refuse_enc_from_file_with_bad_name():
+    with pytest.raises(Exception) as e:
+        output = []
+        vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.bad'])
+        assert "ERROR: Secret file name must end with" in str(e.value)
+
+def test_enc_from_file():
+    os.environ["KVVERSION"] = "v2"
+    vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.dec'])
+    assert True # If it reaches here without error then encoding was a success
+    # TODO: Maybe test if the secret is correctly saved to vault
+
 def test_dec():
     os.environ["KVVERSION"] = "v2"
     input_values = ["adfs1", "adfs2"]

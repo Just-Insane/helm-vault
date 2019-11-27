@@ -329,7 +329,6 @@ def dict_walker(pattern, data, args, envs, secret_data, path=None):
                 if action == "enc":
                     if secret_data:
                         data[key] = value_from_path(secret_data, f"{path}/{key}")
-                        print(f"Using secret data {path}/{key}: {data[key]}")
                     else:
                         data[key] = input(f"Input a value for {path}/{key}: ")
                     vault = Vault(args, envs)
@@ -350,8 +349,7 @@ def dict_walker(pattern, data, args, envs, secret_data, path=None):
 def load_secret(args): 
     if args.secret_file:
         if not re.search(r'\.yaml\.dec$', args.secret_file):
-            print(f"ERROR: Secret file name must end with \".yaml.dec\". {args.secret_file} was given instead.")
-            exit()
+            raise Exception(f"ERROR: Secret file name must end with \".yaml.dec\". {args.secret_file} was given instead.")
         return load_yaml(args.secret_file)
 
 def main(argv=None):
