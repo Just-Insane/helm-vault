@@ -76,6 +76,33 @@ def test_dec():
         'Done Decrypting',
     ]
 
+def test_value_from_path():
+    data = {
+        "chapter1": {
+            "chapter1.1": {
+                "chapter1.1.1": "good",
+                "chapter1.1.2": "bad",
+            },
+            "chapter1.2": {
+                "chapter1.2.1": "good",
+                "chapter1.2.2": "bad",
+            }
+        }
+    }
+    val = vault.value_from_path(data, "/")
+    assert val == data
+    val = vault.value_from_path(data, "/chapter1/chapter1.1")
+    assert val == {
+                "chapter1.1.1": "good",
+                "chapter1.1.2": "bad",
+            }
+    val = vault.value_from_path(data, "/chapter1/chapter1.1/chapter1.1.2")
+    assert val == "bad"
+
+    with pytest.raises(Exception) as e:
+        val = vault.value_from_path(data, "/chapter1/chapter1.1/bleh")
+        assert "Missing secret value" in str(e.value)
+
 def test_clean():
     os.environ["KVVERSION"] = "v2"
     copyfile("./tests/test.yaml.dec", "./tests/test.yaml.dec.bak")

@@ -304,12 +304,19 @@ def cleanup(args):
     else:
         sys.exit()
 
+# Get value from a nested hash structure given a path of key names
+# For example:
+# secret_data['mysql']['password'] = "secret"
+# value_from_path(secret_data, "/mysql/password") => returns "secret"
 def value_from_path(secret_data, path):
     val = secret_data
     for key in path.split('/'):
         if not key:
             continue
-        val = val[key]
+        if key in val.keys():
+            val = val[key]
+        else:
+            raise Exception(f"Missing secret value. Key {key} does not exist when retrieving value from path {path}")
     return val
 
 def dict_walker(pattern, data, args, envs, secret_data, path=None):
@@ -342,9 +349,8 @@ def dict_walker(pattern, data, args, envs, secret_data, path=None):
 
 def load_secret(args): 
     if args.secret_file:
-        if not re.search('\.plainsecret\.yaml$', args.secret_file):
-            print("ERROR: Secret file name must end with .plainsecret.yaml")
-            print(f"       Given file name {args.secret_file}")
+        if not re.search(r'\.yaml\.dec$', args.secret_file):
+            print(f"ERROR: Secret file name must end with \".yaml.dec\". {args.secret_file} was given instead.")
             exit()
         return load_yaml(args.secret_file)
 
