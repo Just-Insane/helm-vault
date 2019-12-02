@@ -61,7 +61,6 @@ def test_enc():
 
 def test_refuse_enc_from_file_with_bad_name():
     with pytest.raises(Exception) as e:
-        output = []
         vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.bad'])
         assert "ERROR: Secret file name must end with" in str(e.value)
 

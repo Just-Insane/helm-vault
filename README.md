@@ -175,7 +175,7 @@ Input a value for /nextcloud/password: asdf1
 Input a value for /mariadb/db/password: asdf2
 ```
 
-If you don't want to enter the secrets manually on stdin, you can pass a file containing the secrets. Copy values.yaml to values.yaml.dec and edit the file, replacing "changeme" or the deliminator with the secret value. Then you can save the secret to vault by running: 
+If you don't want to enter the secrets manually on stdin, you can pass a file containing the secrets. Copy `values.yaml` to `values.yaml.dec` and edit the file, replacing "changeme" (the deliminator) with the secret value. Then you can save the secret to vault by running: 
 
 ```
 $ helm vault enc values.yaml -s values.yaml.dec
