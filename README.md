@@ -5,7 +5,7 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Just-Insane/helm-vault.svg?style=flat-square)](https://github.com/Just-Insane/helm-vault/pulls)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/Just-Insane/helm-vault.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Just-Insane/helm-vault/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Just-Insane/helm-vault.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Just-Insane/helm-vault/context:python)
-[![Build Status](https://gitlab.com/just.insane/helm-vault/badges/master/build.svg)](https://gitlab.com/just.insane/helm-vault/badges/master/build.svg)
+[![Build Status](https://gitlab.com/just.insane/helm-vault/badges/master/pipeline.svg)](https://gitlab.com/just.insane/helm-vault/pipelines)
 
 # Helm-Vault
 
@@ -13,20 +13,39 @@ Helm-Vault stores private data from YAML files in Hashicorp Vault. Helm-Vault sh
 
 ## Table of Contents
 
-1. [About the Project](#about-the-project)
-1. [Project Status](#project-status)
-1. [Getting Started](#getting-started)
-	1. [Dependencies](#dependencies)
-	1. [Installation](#installation)
-	1. [Usage and Examples](#usage-and-examples)
-1. [Release Process](#release-process)
-	1. [Versioning](#versioning)
-1. [How to Get Help](#how-to-get-help)
-1. [Further Reading](#further-reading)
-1. [Contributing](#contributing)
-1. [License](#license)
-1. [Authors](#authors)
-1. [Acknowledgements](#acknowledgements)
+- [Helm-Vault](#helm-vault)
+  - [Table of Contents](#table-of-contents)
+- [About the Project](#about-the-project)
+- [Project Status](#project-status)
+- [Getting Started](#getting-started)
+  - [Dependencies](#dependencies)
+  - [Getting the Source](#getting-the-source)
+  - [Running Tests](#running-tests)
+    - [Other Tests](#other-tests)
+  - [Installation](#installation)
+    - [Using Helm plugin manager (> 2.3.x)](#using-helm-plugin-manager--23x)
+  - [Usage and Examples](#usage-and-examples)
+    - [Basic commands:](#basic-commands)
+    - [Usage examples](#usage-examples)
+      - [Encrypt](#encrypt)
+      - [Decrypt](#decrypt)
+      - [View](#view)
+      - [Edit](#edit)
+      - [Clean](#clean)
+    - [Wrapper Examples](#wrapper-examples)
+      - [Install](#install)
+      - [Template](#template)
+      - [Upgrade](#upgrade)
+      - [Lint](#lint)
+      - [Diff](#diff)
+- [Release Process](#release-process)
+  - [Versioning](#versioning)
+- [How to Get Help](#how-to-get-help)
+- [Contributing](#contributing)
+- [Further Reading](#further-reading)
+- [License](#license)
+- [Authors](#authors)
+- [Acknowledgments](#acknowledgments)
 
 # About the Project
 
@@ -58,9 +77,9 @@ Input a value for /nextcloud/password:
 
 Build Status:
 
-[![Build Status](https://gitlab.com/just.insane/helm-vault/badges/master/build.svg)](https://gitlab.com/just.insane/helm-vault/badges/master/build.svg)
+[![Build Status](https://gitlab.com/just.insane/helm-vault/badges/master/pipeline.svg)](https://gitlab.com/just.insane/helm-vault/pipelines)
 
-Helm-Vault is in an pre-production state currently. It should work across platforms, and should be able to handle most YAML thrown at it, but it is missing some features.
+Helm-Vault is in a production state. It should work across platforms, and should be able to handle most YAML thrown at it.
 
 **[Back to top](#table-of-contents)**
 
