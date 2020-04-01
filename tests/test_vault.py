@@ -59,6 +59,17 @@ def test_enc():
         'Input a value for /mariadb/db/password: ',
     ]
 
+def test_refuse_enc_from_file_with_bad_name():
+    with pytest.raises(Exception) as e:
+        vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.bad'])
+        assert "ERROR: Secret file name must end with" in str(e.value)
+
+def test_enc_from_file():
+    os.environ["KVVERSION"] = "v2"
+    vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.dec'])
+    assert True # If it reaches here without error then encoding was a success
+    # TODO: Maybe test if the secret is correctly saved to vault
+
 def test_dec():
     os.environ["KVVERSION"] = "v2"
     input_values = ["adfs1", "adfs2"]
@@ -75,6 +86,33 @@ def test_dec():
     assert output == [
         'Done Decrypting',
     ]
+
+def test_value_from_path():
+    data = {
+        "chapter1": {
+            "chapter1.1": {
+                "chapter1.1.1": "good",
+                "chapter1.1.2": "bad",
+            },
+            "chapter1.2": {
+                "chapter1.2.1": "good",
+                "chapter1.2.2": "bad",
+            }
+        }
+    }
+    val = vault.value_from_path(data, "/")
+    assert val == data
+    val = vault.value_from_path(data, "/chapter1/chapter1.1")
+    assert val == {
+                "chapter1.1.1": "good",
+                "chapter1.1.2": "bad",
+            }
+    val = vault.value_from_path(data, "/chapter1/chapter1.1/chapter1.1.2")
+    assert val == "bad"
+
+    with pytest.raises(Exception) as e:
+        val = vault.value_from_path(data, "/chapter1/chapter1.1/bleh")
+        assert "Missing secret value" in str(e.value)
 
 def test_clean():
     os.environ["KVVERSION"] = "v2"

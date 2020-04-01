@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import ruamel.yaml
 import hvac
 import os
@@ -35,6 +36,7 @@ def parse_args(args):
     encrypt.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
     encrypt.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault) Default: \"secret/helm\"")
     encrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
+    encrypt.add_argument("-s", "--secret-file", type=str, help="File containing the secret for input. Must end in .yaml.dec")
     encrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
     # Decrypt help
@@ -302,7 +304,22 @@ def cleanup(args):
     else:
         sys.exit()
 
-def dict_walker(pattern, data, args, envs, path=None):
+# Get value from a nested hash structure given a path of key names
+# For example:
+# secret_data['mysql']['password'] = "secret"
+# value_from_path(secret_data, "/mysql/password") => returns "secret"
+def value_from_path(secret_data, path):
+    val = secret_data
+    for key in path.split('/'):
+        if not key:
+            continue
+        if key in val.keys():
+            val = val[key]
+        else:
+            raise Exception(f"Missing secret value. Key {key} does not exist when retrieving value from path {path}")
+    return val
+
+def dict_walker(pattern, data, args, envs, secret_data, path=None):
     # Walk through the loaded dicts looking for the values we want
     path = path if path is not None else ""
     action = args.action
@@ -310,7 +327,10 @@ def dict_walker(pattern, data, args, envs, path=None):
         for key, value in data.items():
             if value == pattern:
                 if action == "enc":
-                    data[key] = input(f"Input a value for {path}/{key}: ")
+                    if secret_data:
+                        data[key] = value_from_path(secret_data, f"{path}/{key}")
+                    else:
+                        data[key] = input(f"Input a value for {path}/{key}: ")
                     vault = Vault(args, envs)
                     vault.vault_write(data[key], path, key)
                 elif (action == "dec") or (action == "view") or (action == "edit") or (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
@@ -318,12 +338,19 @@ def dict_walker(pattern, data, args, envs, path=None):
                     vault = vault.vault_read(value, path, key)
                     value = vault
                     data[key] = value
-            for res in dict_walker(pattern, value, args, envs, path=f"{path}/{key}"):
+            for res in dict_walker(pattern, value, args, envs, secret_data, path=f"{path}/{key}"):
                 yield res
     elif isinstance(data, list):
         for item in data:
-            for res in dict_walker(pattern, item, args, envs, path=f"{path}"):
+            for res in dict_walker(pattern, item, args, envs, secret_data, path=f"{path}"):
                 yield res
+
+
+def load_secret(args): 
+    if args.secret_file:
+        if not re.search(r'\.yaml\.dec$', args.secret_file):
+            raise Exception(f"ERROR: Secret file name must end with \".yaml.dec\". {args.secret_file} was given instead.")
+        return load_yaml(args.secret_file)
 
 def main(argv=None):
 
@@ -343,8 +370,9 @@ def main(argv=None):
     envs = envs.get_envs()
     yaml = ruamel.yaml.YAML()
     yaml.preserve_quotes = True
+    secret_data = load_secret(args) if args.action == 'enc' else None
 
-    for path, key, value in dict_walker(envs[1], data, args, envs):
+    for path, key, value in dict_walker(envs[1], data, args, envs, secret_data):
         print("Done")
 
     if action == "dec":
