@@ -70,6 +70,7 @@ Helm-Vault was created to provide a better way to manage secrets for Helm, with 
 ```
 $ helm vault enc values.yaml
 Input a value for /mariadb/db/password:
+Input a value for /externalDatabase/user:
 Input a value for /nextcloud/password:
 ```
 
@@ -193,7 +194,8 @@ The encrypt operation encrypts a values.yaml file and saves the encrypted values
 ```
 $ helm vault enc values.yaml
 Input a value for /nextcloud/password: asdf1
-Input a value for /mariadb/db/password: asdf2
+Input a value for /externalDatabase/user: asdf2
+Input a value for /mariadb/db/password: asdf3
 ```
 
 If you don't want to enter the secrets manually on stdin, you can pass a file containing the secrets. Copy `values.yaml` to `values.yaml.dec` and edit the file, replacing "changeme" (the deliminator) with the secret value. Then you can save the secret to vault by running: 
