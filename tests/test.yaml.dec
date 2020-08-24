@@ -60,7 +60,7 @@ mariadb:
   db:
     name: nextcloud
     user: nextcloud
-    password:
+    password: mariapass
 
   ## Enable persistence using Persistent Volume Claims
   ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
