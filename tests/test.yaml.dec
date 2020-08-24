@@ -24,7 +24,7 @@ ingress:
 nextcloud:
   host: nextcloud.corp.justin-tech.com
   username: admin
-  password:
+  password: nextpass
 
 
 internalDatabase:
@@ -45,7 +45,7 @@ externalDatabase:
   user: nextcloud
 
   ## Database password
-  password:
+  password: mariapass
 
   ## Database name
   database: nextcloud

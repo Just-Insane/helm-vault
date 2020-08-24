@@ -258,6 +258,23 @@ The operation will delete all decrypted files in a directory:
 $ helm vault clean
 ```
 
+### vault path templating
+
+It is possible to setup vault's path inside helm chart like this
+
+```
+key1: VAULT:helm1/test/key1
+key2: VAULT:/helm2/test/key2
+```
+This mean that key1 will be storing into base_path/helm1/test/key1 and key2 into /helm2/test/key2 . Where is helm2 is root path enabled via secrets enable. For example:
+
+```
+vault secrets enable  -path=helm2 kv-v2
+```
+
+To override default value of template path pattern use **SECRET_TEMPLATE** variable. By default this value is VAULT: . This is mean that all keys with values like VAULT:something will be stored inside vault.
+
+
 ### Wrapper Examples
 
 #### Install
