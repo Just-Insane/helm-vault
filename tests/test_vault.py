@@ -19,7 +19,7 @@ import subprocess
 
 def test_load_yaml():
 
-    data_test = ordereddict([('image', ordereddict([('repository', 'nextcloud'), ('tag', '15.0.2-apache'), ('pullPolicy', 'IfNotPresent')])), ('nameOverride', ''), ('fullnameOverride', ''), ('replicaCount', 1), ('ingress', ordereddict([('enabled', True), ('annotations', ordereddict())])), ('nextcloud', ordereddict([('host', 'nextcloud.corp.justin-tech.com'), ('username', 'admin'), ('password', 'changeme')])), ('internalDatabase', ordereddict([('enabled', True), ('name', 'nextcloud')])), ('externalDatabase', ordereddict([('enabled', False), ('host', None), ('user', 'nextcloud'), ('password', None), ('database', 'nextcloud')])), ('mariadb', ordereddict([('enabled', True), ('db', ordereddict([('name', 'nextcloud'), ('user', 'nextcloud'), ('password', 'changeme')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')]))])), ('service', ordereddict([('type', 'ClusterIP'), ('port', 8080), ('loadBalancerIP', 'nil')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')])), ('resources', ordereddict()), ('nodeSelector', ordereddict()), ('tolerations', []), ('affinity', ordereddict())])
+    data_test = ordereddict([('image', ordereddict([('repository', 'nextcloud'), ('tag', '15.0.2-apache'), ('pullPolicy', 'IfNotPresent')])), ('nameOverride', ''), ('fullnameOverride', ''), ('replicaCount', 1), ('ingress', ordereddict([('enabled', True), ('annotations', ordereddict())])), ('nextcloud', ordereddict([('host', 'nextcloud.corp.justin-tech.com'), ('username', 'admin'), ('password', 'changeme')])), ('internalDatabase', ordereddict([('enabled', True), ('name', 'nextcloud')])), ('externalDatabase', ordereddict([('enabled', False), ('host', None), ('user', 'VAULT:/secrets/testdata/user'), ('password', None), ('database', 'nextcloud')])), ('mariadb', ordereddict([('enabled', True), ('db', ordereddict([('name', 'nextcloud'), ('user', 'nextcloud'), ('password', 'changeme')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')]))])), ('service', ordereddict([('type', 'ClusterIP'), ('port', 8080), ('loadBalancerIP', 'nil')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')])), ('resources', ordereddict()), ('nodeSelector', ordereddict()), ('tolerations', []), ('affinity', ordereddict())])
 
     yaml_file = "./tests/test.yaml"
     data = vault.load_yaml(yaml_file)
@@ -43,7 +43,7 @@ def filecheckfunc():
 
 def test_enc():
     os.environ["KVVERSION"] = "v2"
-    input_values = ["adfs1", "adfs2"]
+    input_values = ["adfs1", "adfs2", "adfs3"]
     output = []
 
     def mock_input(s):
@@ -56,6 +56,7 @@ def test_enc():
 
     assert output == [
         'Input a value for /nextcloud/password: ',
+        'Input a value for /externalDatabase/user: ',
         'Input a value for /mariadb/db/password: ',
     ]
 

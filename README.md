@@ -70,6 +70,7 @@ Helm-Vault was created to provide a better way to manage secrets for Helm, with 
 ```
 $ helm vault enc values.yaml
 Input a value for /mariadb/db/password:
+Input a value for /externalDatabase/user:
 Input a value for /nextcloud/password:
 ```
 
@@ -193,7 +194,8 @@ The encrypt operation encrypts a values.yaml file and saves the encrypted values
 ```
 $ helm vault enc values.yaml
 Input a value for /nextcloud/password: asdf1
-Input a value for /mariadb/db/password: asdf2
+Input a value for /externalDatabase/user: asdf2
+Input a value for /mariadb/db/password: asdf3
 ```
 
 If you don't want to enter the secrets manually on stdin, you can pass a file containing the secrets. Copy `values.yaml` to `values.yaml.dec` and edit the file, replacing "changeme" (the deliminator) with the secret value. Then you can save the secret to vault by running: 
@@ -257,6 +259,23 @@ The operation will delete all decrypted files in a directory:
 ```
 $ helm vault clean
 ```
+
+### vault path templating
+
+It is possible to setup vault's path inside helm chart like this
+
+```
+key1: VAULT:helm1/test/key1
+key2: VAULT:/helm2/test/key2
+```
+This mean that key1 will be storing into base_path/helm1/test/key1 and key2 into /helm2/test/key2 . Where is helm2 is root path enabled via secrets enable. For example:
+
+```
+vault secrets enable  -path=helm2 kv-v2
+```
+
+To override default value of template path pattern use **SECRET_TEMPLATE** variable. By default this value is VAULT: . This is mean that all keys with values like VAULT:something will be stored inside vault.
+
 
 ### Wrapper Examples
 
