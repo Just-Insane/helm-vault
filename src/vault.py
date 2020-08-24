@@ -252,10 +252,7 @@ class Vault:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
             try:
-                if mount_point is not None:
-                    self.client.write(_path, value=value, mount_point = mount_point)
-                else:
-                    self.client.write(_path, value=value)
+                self.client.write(_path, value=value, mount_point = mount_point)
                 if self.args.verbose is True:
                     print(f"Wrote {value} to: {_path}")
             except AttributeError:
@@ -267,17 +264,11 @@ class Vault:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
             try:
-                if mount_point is not None:
-                    self.client.secrets.kv.v2.create_or_update_secret(
-                        path=_path,
-                        secret=dict(value=value),
-                        mount_point = mount_point,
-                    )
-                else:
-                    self.client.secrets.kv.v2.create_or_update_secret(
-                        path=_path,
-                        secret=dict(value=value),
-                    )                    
+                self.client.secrets.kv.v2.create_or_update_secret(
+                    path=_path,
+                    secret=dict(value=value),
+                    mount_point = mount_point,
+                )
                 if self.args.verbose is True:
                     print(f"Wrote {value} to: {_path}")
             except AttributeError:
@@ -322,15 +313,10 @@ class Vault:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
             try:
-                if mount_point is not None:
-                    value = self.client.secrets.kv.v2.read_secret_version(
-                        path=_path,
-                        mount_point=mount_point,
-                    )
-                else:
-                     value = self.client.secrets.kv.v2.read_secret_version(
-                        path=_path,
-                    )                   
+                value = self.client.secrets.kv.v2.read_secret_version(
+                    path=_path,
+                    mount_point=mount_point,
+                )
                 value = value.get("data", {}).get("data", {}).get("value")
                 if self.args.verbose is True:
                     print(f"Got {value} from: {_path}")
@@ -391,7 +377,7 @@ def dict_walker(pattern, data, args, envs, secret_data, path=None):
     action = args.action
     if isinstance(data, dict):
         for key, value in data.items():
-            if value == pattern or str(value).startswith(envs[VAULT_TEMPLATE_POSITION]):
+            if value == pattern or value.startswith(envs[VAULT_TEMPLATE_POSITION]):
                 if value.startswith(envs[VAULT_TEMPLATE_POSITION]):
                     _full_path = value[len(envs[VAULT_TEMPLATE_POSITION]):]
                 else:
