@@ -1,6 +1,6 @@
-- name: Trigger GitLab CI
-  uses: appleboy/gitlab-ci-action@0.0.1
-  with:
-    token: ${{ secrets.TOKEN }}
-    project_id: 11954579
-    debug: true
+name: Trigger GitLab CI
+uses: appleboy/gitlab-ci-action@0.0.1
+with:
+  token: ${{ secrets.TOKEN }}
+  project_id: 11954579
+  debug: true
