@@ -43,7 +43,7 @@ def filecheckfunc():
 
 def test_enc():
     os.environ["KVVERSION"] = "v2"
-    input_values = ["adfs1", "adfs2", "adfs3"]
+    input_values = ["adfs1", "adfs2"]
     output = []
 
     def mock_input(s):
@@ -56,7 +56,6 @@ def test_enc():
 
     assert output == [
         'Input a value for /nextcloud/password: ',
-        'Input a value for /externalDatabase/user: ',
         'Input a value for /mariadb/db/password: ',
     ]
 

@@ -44,6 +44,7 @@ externalDatabase:
   ## Database user
   user: VAULT:/secret/testdata/user
 
+
   ## Database password
   password:
 

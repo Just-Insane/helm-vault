@@ -13,9 +13,6 @@ import platform
 import subprocess
 check_call = subprocess.check_call
 
-VAULT_PATH_POSITION = 0 
-VAULT_TEMPLATE_POSITION = 4
-
 if sys.version_info[:2] < (3, 7):
     raise Exception("Python 3.7 or a more recent version is required.")
 
@@ -38,7 +35,6 @@ def parse_args(args):
     encrypt.add_argument("yaml_file", type=str, help="The YAML file to be worked on")
     encrypt.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
     encrypt.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault) Default: \"secret/helm\"")
-    encrypt.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     encrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     encrypt.add_argument("-s", "--secret-file", type=str, help="File containing the secret for input. Must end in .yaml.dec")
     encrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -47,7 +43,6 @@ def parse_args(args):
     decrypt = subparsers.add_parser("dec", help="Parse a YAML file and retrieve values from Vault")
     decrypt.add_argument("yaml_file", type=str, help="The YAML file to be worked on")
     decrypt.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    decrypt.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     decrypt.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     decrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     decrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -61,7 +56,6 @@ def parse_args(args):
     view = subparsers.add_parser("view", help="View decrypted YAML file")
     view.add_argument("yaml_file", type=str, help="The YAML file to be worked on")
     view.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    view.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     view.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     view.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     view.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -70,7 +64,6 @@ def parse_args(args):
     edit = subparsers.add_parser("edit", help="Edit decrypted YAML file. DOES NOT CLEAN UP AUTOMATICALLY.")
     edit.add_argument("yaml_file", type=str, help="The YAML file to be worked on")
     edit.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    edit.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     edit.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     edit.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     edit.add_argument("-e", "--editor", help="Editor name. Default: (Linux/MacOS) \"vi\" (Windows) \"notepad\"", const=True, nargs="?")
@@ -80,7 +73,6 @@ def parse_args(args):
     install = subparsers.add_parser("install", help="Wrapper that decrypts YAML files before running helm install")
     install.add_argument("-f", "--values", type=str, dest="yaml_file", help="The encrypted YAML file to decrypt on the fly")
     install.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    install.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     install.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     install.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     install.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -89,7 +81,6 @@ def parse_args(args):
     template = subparsers.add_parser("template", help="Wrapper that decrypts YAML files before running helm install")
     template.add_argument("-f", "--values", type=str, dest="yaml_file", help="The encrypted YAML file to decrypt on the fly")
     template.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    template.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     template.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     template.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     template.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -98,7 +89,6 @@ def parse_args(args):
     upgrade = subparsers.add_parser("upgrade", help="Wrapper that decrypts YAML files before running helm install")
     upgrade.add_argument("-f", "--values", type=str, dest="yaml_file", help="The encrypted YAML file to decrypt on the fly")
     upgrade.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    upgrade.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     upgrade.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     upgrade.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     upgrade.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -107,7 +97,6 @@ def parse_args(args):
     lint = subparsers.add_parser("lint", help="Wrapper that decrypts YAML files before running helm install")
     lint.add_argument("-f", "--values", type=str, dest="yaml_file", help="The encrypted YAML file to decrypt on the fly")
     lint.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    lint.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     lint.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     lint.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     lint.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -116,7 +105,6 @@ def parse_args(args):
     diff = subparsers.add_parser("diff", help="Wrapper that decrypts YAML files before running helm diff")
     diff.add_argument("-f", "--values", type=str, dest="yaml_file", help="The encrypted YAML file to decrypt on the fly")
     diff.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
-    diff.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     diff.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     diff.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     diff.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -166,19 +154,6 @@ class Envs:
                 if self.args.verbose is True:
                     print("The default deliminator is: " + deliminator)
 
-        if "SECRET_TEMPLATE" in os.environ:
-            vault_template=os.environ["SECRET_TEMPLATE"]
-            if self.args.verbose is True:
-                print("The env vault template is: " + vault_template)
-        else:
-            if self.args.vaulttemplate:
-                vault_template = self.args.vaulttemplate
-                if self.args.verbose is True:
-                    print("The vault template is: " + vault_template)
-            else:
-                vault_template = "VAULT:"
-                if self.args.verbose is True:
-                    print("The default vault template is: " + vault_template)
         if "EDITOR" in os.environ:
             editor=os.environ["EDITOR"]
             if self.args.verbose is True:
@@ -214,7 +189,7 @@ class Envs:
                 if self.args.verbose is True:
                     print("The default kvversion is: " + kvversion)
 
-        return secret_mount, deliminator, editor, kvversion, vault_template
+        return secret_mount, deliminator, editor, kvversion
 
 class Vault:
     def __init__(self, args, envs):
@@ -233,31 +208,15 @@ class Vault:
         except Exception as ex:
             print(f"ERROR: {ex}")
 
-    def vault_write(self, value, path, key, full_path=None):
-        # Use path from template if presents
-        if full_path is not None:
-            _path = full_path
-            if _path.startswith('/'):
-                mount_point = _path.split('/')[1]
-                _path = '/'.join(_path.split('/')[2:])
-            else:
-                mount_point = self.envs[VAULT_PATH_POSITION].split('/')[0]
-        else:
-            mount_point = None
-            _path = f"{self.envs[0]}/{self.folder}{path}/{key}"
-
-
+    def vault_write(self, value, path, key):
         # Write to vault, using the correct Vault KV version
         if self.kvversion == "v1":
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
             try:
-                if mount_point is not None:
-                    self.client.write(_path, value=value, mount_point = mount_point)
-                else:
-                    self.client.write(_path, value=value)
+                self.client.write(f"{self.envs[0]}/{self.folder}{path}/{key}", value=value)
                 if self.args.verbose is True:
-                    print(f"Wrote {value} to: {_path}")
+                    print(f"Wrote {value} to: {self.envs[0]}/{self.folder}{path}/{key}")
             except AttributeError:
                 print("Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables.")
             except Exception as ex:
@@ -267,19 +226,12 @@ class Vault:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
             try:
-                if mount_point is not None:
-                    self.client.secrets.kv.v2.create_or_update_secret(
-                        path=_path,
-                        secret=dict(value=value),
-                        mount_point = mount_point,
-                    )
-                else:
-                    self.client.secrets.kv.v2.create_or_update_secret(
-                        path=_path,
-                        secret=dict(value=value),
-                    )                    
+                self.client.secrets.kv.v2.create_or_update_secret(
+                    path=f"{self.envs[0]}/{self.folder}{path}/{key}",
+                    secret=dict(value=value),
+                )
                 if self.args.verbose is True:
-                    print(f"Wrote {value} to: {_path}")
+                    print(f"Wrote {value} to: {self.envs[0]}/{self.folder}{path}/{key}")
             except AttributeError:
                 print("Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables.")
             except Exception as ex:
@@ -289,30 +241,18 @@ class Vault:
             print("Wrong KV Version specified, either v1 or v2")
 
 
-    def vault_read(self, value, path, key, full_path=None):
-        # Use path from template if presents
-        if full_path is not None:
-            _path = full_path
-            if _path.startswith('/'):
-                mount_point = _path.split('/')[1]
-                _path = '/'.join(_path.split('/')[2:])
-            else:
-                mount_point = self.envs[VAULT_PATH_POSITION].split('/')[0]
-        else:
-            mount_point = None
-            _path = f"{self.envs[0]}/{self.folder}{path}/{key}"
-
+    def vault_read(self, value, path, key):
         # Read from Vault, using the correct Vault KV version
         if self.kvversion == "v1":
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
             try:
-                value = self.client.read(_path)
+                value = self.client.read(f"{self.envs[0]}/{self.folder}{path}/{key}")
                 if self.args.verbose is True:
-                    print(f"Got {value} from: {_path}")
+                    print(f"Got {value} from: {self.envs[0]}/{self.folder}{path}/{key}")
                 return value.get("data", {}).get("value")
-            except AttributeError as ex:
-                print(f"Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables. {ex}")
+            except AttributeError:
+                print("Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables.")
             except Exception as ex:
                 print(f"Error: {ex}")
             except Exception as ex:
@@ -322,18 +262,12 @@ class Vault:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
             try:
-                if mount_point is not None:
-                    value = self.client.secrets.kv.v2.read_secret_version(
-                        path=_path,
-                        mount_point=mount_point,
-                    )
-                else:
-                     value = self.client.secrets.kv.v2.read_secret_version(
-                        path=_path,
-                    )                   
+                value = self.client.secrets.kv.v2.read_secret_version(
+                    path=f"{self.envs[0]}/{self.folder}{path}/{key}",
+                )
                 value = value.get("data", {}).get("data", {}).get("value")
                 if self.args.verbose is True:
-                    print(f"Got {value} from: {_path}")
+                    print(f"Got {value} from: {self.envs[0]}/{self.folder}{path}/{key}")
                 return value
             except AttributeError:
                 print("Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables.")
@@ -391,21 +325,17 @@ def dict_walker(pattern, data, args, envs, secret_data, path=None):
     action = args.action
     if isinstance(data, dict):
         for key, value in data.items():
-            if value == pattern or str(value).startswith(envs[VAULT_TEMPLATE_POSITION]):
-                if value.startswith(envs[VAULT_TEMPLATE_POSITION]):
-                    _full_path = value[len(envs[VAULT_TEMPLATE_POSITION]):]
-                else:
-                    _full_path = None
+            if value == pattern:
                 if action == "enc":
                     if secret_data:
                         data[key] = value_from_path(secret_data, f"{path}/{key}")
                     else:
                         data[key] = input(f"Input a value for {path}/{key}: ")
                     vault = Vault(args, envs)
-                    vault.vault_write(data[key], path, key, _full_path)
+                    vault.vault_write(data[key], path, key)
                 elif (action == "dec") or (action == "view") or (action == "edit") or (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
                     vault = Vault(args, envs)
-                    vault = vault.vault_read(value, path, key, _full_path)
+                    vault = vault.vault_read(value, path, key)
                     value = vault
                     data[key] = value
             for res in dict_walker(pattern, value, args, envs, secret_data, path=f"{path}/{key}"):
