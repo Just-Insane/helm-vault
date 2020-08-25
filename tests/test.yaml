@@ -42,7 +42,7 @@ externalDatabase:
   host:
 
   ## Database user
-  user: nextcloud
+  user: VAULT:/secret/testdata/user
 
   ## Database password
   password:
