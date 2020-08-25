@@ -255,8 +255,6 @@ class Vault:
                 print("Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables.")
             except Exception as ex:
                 print(f"Error: {ex}")
-            except Exception as ex:
-                print(f"ERROR: {ex}")
 
         elif self.kvversion == "v2":
             if self.args.verbose is True:
