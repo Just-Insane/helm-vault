@@ -34,6 +34,7 @@ Helm-Vault stores private data from YAML files in Hashicorp Vault. Helm-Vault sh
       - [View](#view)
       - [Edit](#edit)
       - [Clean](#clean)
+    - [vault path templating](#vault-path-templating)
     - [Wrapper Examples](#wrapper-examples)
       - [Install](#install)
       - [Template](#template)
