@@ -189,7 +189,7 @@ class Envs:
                 if self.args.verbose is True:
                     print("The editor is: " + editor)
             except AttributeError:
-                if platform.system() is not "Windows":
+                if platform.system() != "Windows":
                     editor = "vi"
                     if self.args.verbose is True:
                         print("The default editor is: " + editor)
