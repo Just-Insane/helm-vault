@@ -27,6 +27,14 @@ Helm-Vault stores private data from YAML files in Hashicorp Vault. Helm-Vault sh
   - [Installation](#installation)
     - [Using Helm plugin manager (> 2.3.x)](#using-helm-plugin-manager--23x)
   - [Usage and Examples](#usage-and-examples)
+    - [Environment Variables](#environment-variables)
+      - [VAULT_ADDR](#vault_addr)
+      - [VAULT_TOKEN](#vault_token)
+      - [VAULT_PATH](#vault_path)
+      - [SECRET_DELIM](#secret_delim)
+      - [SECRET_TEMPLATE](#secret_template)
+      - [EDITOR](#editor)
+      - [KVVERSION](#kvversion)
     - [Basic commands:](#basic-commands)
     - [Usage examples](#usage-examples)
       - [Encrypt](#encrypt)
@@ -176,7 +184,57 @@ Any YAML file can be transparently "encrypted" as long as it has a deliminator f
 
 Decrypted files have the suffix ".yaml.dec" by default
 
+### Environment Variables
+
+The environment variables currently take precedent over passed flags, expect this to change in a later version.
+
+#### VAULT_ADDR
+
+The HTTP(S) address of Vault, for example, http://localhost:8200
+
+Default when not set: `null`, the program will error and inform you that this address needs to be set as an environment variable.
+
+#### VAULT_TOKEN
+
+The token used to authenticate with Vault.
+
+Default when not set: `null`, the program will error and inform you that this value needs to be set as an environment variable.
+
+#### VAULT_PATH
+
+This is the path within Vault that secrets are stored. It should start with the name of the secrets engine being used and an optional folder within that secrets engine that all Helm-Vault secrets will be stored.
+
+Default when not set: `secret/helm`, where `secret` is the secrets engine being used, and `helm` is the folder in which all secrets will be stored.
+
+#### SECRET_DELIM
+
+This is the value which Helm-Vault will search for within the YAML files to prompt for encryption, or replace when decrypting.
+
+Default when not set: `changeme`.
+
+#### SECRET_TEMPLATE
+
+This is the value that Helm-Vault will search for within the YAML files to denote [Vault Path Templating](#vault-path-templating).
+
+Default when not set: `VAULT:`
+
+#### EDITOR
+
+This is the editor that Helm-Vault will use when requesting `helm vault edit`.
+
+Default when not set:
+
+- Windows: `notepad`
+- macOS/Linux: `vi`
+
+#### KVVERSION
+
+This is the K/V secret engine version within Vault, currently `v1` and `v2` are supported.
+
+Default when not set: `v1`, expect this to change in a later version, as Vault now defaults to `v2` K/V secrets engines.
+
 ### Basic commands:
+
 ```
   enc           Encrypt file
   dec           Decrypt file
@@ -184,6 +242,7 @@ Decrypted files have the suffix ".yaml.dec" by default
   edit          Edit file (decrypt before, manual cleanup)
   clean         Delete *.yaml.dec files in directory (recursively)
 ```
+
 Each of these commands have their own help, referenced by `helm vault {enc,dec,clean,view,edit} --help`.
 
 ### Usage examples
