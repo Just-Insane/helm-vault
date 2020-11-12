@@ -346,6 +346,7 @@ def load_yaml(yaml_file):
     yaml = ruamel.yaml.YAML()
     yaml.preserve_quotes = True
     with open(yaml_file) as filepath:
+        # Use yaml.load_all to be able to load multi-yaml files
         data = list(yaml.load_all(filepath))
         return data
 
