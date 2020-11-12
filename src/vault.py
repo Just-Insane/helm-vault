@@ -346,7 +346,7 @@ def load_yaml(yaml_file):
     yaml = ruamel.yaml.YAML()
     yaml.preserve_quotes = True
     with open(yaml_file) as filepath:
-        data = yaml.load(filepath)
+        data = list(yaml.load_all(filepath))
         return data
 
 def cleanup(args):
