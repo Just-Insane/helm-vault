@@ -276,7 +276,7 @@ Each of these commands have their own help, referenced by `helm vault {enc,dec,c
 |`-vp`, `--vaultpath`|The Vault Path (secret mount location in Vault)|`secret/helm`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-vt`, `--vaulttemplate`|Substring with path to vault key instead of deliminator.|`VAULT:`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-kv`, `--kvversion`|The version of the KV secrets engine in Vault|`v1`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
-|`v`, `--verbose`|Verbose output||`enc`, `dec`, `clean`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
+|`-v`, `--verbose`|Verbose output||`enc`, `dec`, `clean`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-s`, `--secret-file`|File containing secrets for input, rather than using stdin, must end in `.yaml.dec`||`enc`|
 |`-f`, `--file`|The specific YAML file to be deleted, without `.dec`||`clean`|
 |`-e`, `--editor`|Editor name|Windows: `notepad`, macOS/Linux: `vi`|`edit`|
