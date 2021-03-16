@@ -443,7 +443,6 @@ def main(argv=None):
     yaml.preserve_quotes = True
     secret_data = load_secret(args) if args.action == 'enc' else None
 
-    print(envs)
     for path, key, value in dict_walker(envs[1], data, args, envs, secret_data):
         print("Done")
 
