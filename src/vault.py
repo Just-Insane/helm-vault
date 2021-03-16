@@ -42,6 +42,7 @@ def parse_args(args):
     encrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     encrypt.add_argument("-s", "--secret-file", type=str, help="File containing the secret for input. Must end in .yaml.dec")
     encrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    encrypt.add_argument("-e", "--environment", type=str, help="Allows for secrets to be encoded on a per environment basis")
 
     # Decrypt help
     decrypt = subparsers.add_parser("dec", help="Parse a YAML file and retrieve values from Vault")
@@ -51,6 +52,7 @@ def parse_args(args):
     decrypt.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     decrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     decrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    decrypt.add_argument("-e", "--environment", type=str, help="Allows for secrets to be decoded on a per environment basis")
 
     # Clean help
     clean = subparsers.add_parser("clean", help="Remove decrypted files (in the current directory)")
@@ -385,7 +387,8 @@ def value_from_path(secret_data, path):
 
 def dict_walker(pattern, data, args, envs, secret_data, path=None):
     # Walk through the loaded dicts looking for the values we want
-    path = path if path is not None else ""
+    environment = f"/{args.environment}" if args.environment is not None else ""
+    path = path if path is not None else environment
     action = args.action
     if isinstance(data, dict):
         for key, value in data.items():
@@ -440,6 +443,7 @@ def main(argv=None):
     yaml.preserve_quotes = True
     secret_data = load_secret(args) if args.action == 'enc' else None
 
+    print(envs)
     for path, key, value in dict_walker(envs[1], data, args, envs, secret_data):
         print("Done")
 

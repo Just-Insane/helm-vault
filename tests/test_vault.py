@@ -1,21 +1,15 @@
 #!/usr/bin/env python3
 
-import pytest
-import src.vault as vault
-import ruamel.yaml
-import hvac
 import os
-import argparse
-from argparse import RawTextHelpFormatter
-import glob
-import sys
-import git
-import platform
-from datadiff.tools import assert_equal
-from collections import OrderedDict as ordereddict
-import mock
-from shutil import copyfile
 import subprocess
+from collections import OrderedDict as ordereddict
+from shutil import copyfile
+
+import pytest
+from datadiff.tools import assert_equal
+
+import src.vault as vault
+
 
 def test_load_yaml():
 
