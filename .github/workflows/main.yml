@@ -24,13 +24,13 @@ jobs:
     env:
       VAULT_DEV_ROOT_TOKEN_ID: "802e831f-bf5e-2740-d1f1-bbd936140e0b"
       SKIP_SETCAP: "true"
-      VAULT_ADDR: "http://vault:8200"
+      VAULT_ADDR: "http://localhost:8200"
       VAULT_TOKEN: "802e831f-bf5e-2740-d1f1-bbd936140e0b"
       KVVERSION: "v2"
     
     services:
       vault:
-        image: vault:latest
+        image: vault
         ports:
           - 8200:8200
 
