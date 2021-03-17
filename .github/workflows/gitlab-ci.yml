@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Trigger GitLab CI
-      uses: appleboy/gitlab-ci-action@0.0.1
+      uses: appleboy/gitlab-ci-action@master
       with:
         token: ${{ secrets.TOKEN }}
         project_id: 20740301
