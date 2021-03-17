@@ -87,6 +87,7 @@ def parse_args(args):
     install.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     install.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     install.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    install.add_argument("-e", "--environment", type=str, help="Environment whose secrets to use")
 
     # Template Help
     template = subparsers.add_parser("template", help="Wrapper that decrypts YAML files before running helm install")
@@ -356,10 +357,11 @@ def cleanup(args):
     # Cleanup decrypted files
     yaml_file = args.yaml_file
     environment = f".{args.environment}" if args.environment is not None else ""
+    decode_file = f"{yaml_file}{environment}.dec"
     try:
-        os.remove(f"{yaml_file}{environment}.dec")
+        os.remove(decode_file)
         if args.verbose is True:
-            print(f"Deleted {yaml_file}.dec")
+            print(f"Deleted {decode_file}")
             sys.exit()
     except AttributeError:
         for fl in glob.glob("*.dec"):
@@ -458,14 +460,14 @@ def main(argv=None):
         yaml.dump(data, sys.stdout)
     elif action == "edit":
         yaml.dump(data, open(decode_file, "w"))
-        os.system(envs[2] + ' ' + f"{yaml_file}.dec")
+        os.system(envs[2] + ' ' + f"{decode_file}")
     # These Helm commands are only different due to passed variables
     elif (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
         yaml.dump(data, open(decode_file, "w"))
         leftovers = ' '.join(leftovers)
 
         try:
-            subprocess.run(f"helm {args.action} {leftovers} -f {yaml_file}.dec", shell=True)
+            subprocess.run(f"helm {args.action} {leftovers} -f {decode_file}", shell=True)
         except Exception as ex:
             print(f"Error: {ex}")
 
