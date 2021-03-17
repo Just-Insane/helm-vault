@@ -280,8 +280,9 @@ Each of these commands have their own help, referenced by `helm vault {enc,dec,c
 |`-v`, `--verbose`|Verbose output||`enc`, `dec`, `clean`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-s`, `--secret-file`|File containing secrets for input, rather than using stdin, must end in `.yaml.dec`||`enc`|
 |`-f`, `--file`|The specific YAML file to be deleted, without `.dec`||`clean`|
-|`-e`, `--editor`|Editor name|Windows: `notepad`, macOS/Linux: `vi`|`edit`|
+|`-ed`, `--editor`|Editor name|Windows: `notepad`, macOS/Linux: `vi`|`edit`|
 |`-f`, `--values`|The encrypted YAML file to decrypt on the fly||`install`, `template`, `upgrade`, `lint`, `diff`|
+|`-e`, `--environment`|Environment that secrets should be stored under||`enc`, `dec`, `clean`, `install`|
 
 
 ### Usage examples
@@ -292,9 +293,9 @@ The encrypt operation encrypts a values.yaml file and saves the encrypted values
 
 ```
 $ helm vault enc values.yaml
-Input a value for /nextcloud/password: asdf1
-Input a value for /externalDatabase/user: asdf2
-Input a value for /mariadb/db/password: asdf3
+Input a value for nextcloud.password: asdf1
+Input a value for externalDatabase.user: asdf2
+Input a value for .mariadb.db.password: asdf3
 ```
 
 If you don't want to enter the secrets manually on stdin, you can pass a file containing the secrets. Copy `values.yaml` to `values.yaml.dec` and edit the file, replacing "changeme" (the deliminator) with the secret value. Then you can save the secret to vault by running: 
@@ -304,6 +305,15 @@ $ helm vault enc values.yaml -s values.yaml.dec
 ```
 
 By default the name of the secret file has to end in `.yaml.dec` so you can add this extension to gitignore to prevent committing a secret to your git repo.
+
+In addition, you can namespace your secrets to a desired environment by using the `-e` flag.
+
+```
+helm vault enc values.yaml -e prod
+Input a value for nextcloud.password: asdf1
+Input a value for externalDatabase.user: asdf2
+Input a value for mariadb.db.password: asdf3
+```
 
 #### Decrypt
 
@@ -331,6 +341,18 @@ parameters
     password: asdf2
 ...
 ```
+
+If leveraging environment specific secrets, you can decrypt the desired environment by specifying with the `-e` flag.
+
+Doing so will result in a decrypted file that is stored as `my_file.yaml.{environment}.dec`
+
+For example
+
+```
+$ helm vault dec values.yaml -e prod
+```
+
+Will result in your production environment secrets being dumped into a file named `values.yaml.prod.dec`
 
 #### View
 

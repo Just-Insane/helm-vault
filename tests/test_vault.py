@@ -1,28 +1,22 @@
 #!/usr/bin/env python3
 
-import pytest
-import src.vault as vault
-import ruamel.yaml
-import hvac
 import os
-import argparse
-from argparse import RawTextHelpFormatter
-import glob
-import sys
-import git
-import platform
-from datadiff.tools import assert_equal
-from collections import OrderedDict as ordereddict
-import mock
-from shutil import copyfile
 import subprocess
+from collections import OrderedDict as ordereddict
+from shutil import copyfile
+
+import pytest
+from datadiff.tools import assert_equal
+
+import src.vault as vault
+
 
 def test_load_yaml():
 
-    data_test = ordereddict([('image', ordereddict([('repository', 'nextcloud'), ('tag', '15.0.2-apache'), ('pullPolicy', 'IfNotPresent')])), ('nameOverride', ''), ('fullnameOverride', ''), ('replicaCount', 1), ('ingress', ordereddict([('enabled', True), ('annotations', ordereddict())])), ('nextcloud', ordereddict([('host', 'nextcloud.corp.justin-tech.com'), ('username', 'admin'), ('password', 'changeme')])), ('internalDatabase', ordereddict([('enabled', True), ('name', 'nextcloud')])), ('externalDatabase', ordereddict([('enabled', False), ('host', None), ('user', 'VAULT:/secret/testdata/user'), ('password', None), ('database', 'nextcloud')])), ('mariadb', ordereddict([('enabled', True), ('db', ordereddict([('name', 'nextcloud'), ('user', 'nextcloud'), ('password', 'changeme')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')]))])), ('service', ordereddict([('type', 'ClusterIP'), ('port', 8080), ('loadBalancerIP', 'nil')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')])), ('resources', ordereddict()), ('nodeSelector', ordereddict()), ('tolerations', []), ('affinity', ordereddict())])
-
+    data_test = ordereddict([('image', ordereddict([('repository', 'nextcloud'), ('tag', '15.0.2-apache'), ('pullPolicy', 'IfNotPresent')])), ('nameOverride', ''), ('fullnameOverride', ''), ('replicaCount', 1), ('ingress', ordereddict([('enabled', True), ('annotations', ordereddict())])), ('nextcloud', ordereddict([('host', 'nextcloud.corp.justin-tech.com'), ('username', 'admin'), ('password', 'changeme')])), ('internalDatabase', ordereddict([('enabled', True), ('name', 'nextcloud')])), ('externalDatabase', ordereddict([('enabled', False), ('host', None), ('user', 'VAULT:/secret/testdata/user'), ('password', 'VAULT:/secret/{environment}/testdata/password'), ('database', 'nextcloud')])), ('mariadb', ordereddict([('enabled', True), ('db', ordereddict([('name', 'nextcloud'), ('user', 'nextcloud'), ('password', 'changeme')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')]))])), ('service', ordereddict([('type', 'ClusterIP'), ('port', 8080), ('loadBalancerIP', 'nil')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')])), ('resources', ordereddict()), ('nodeSelector', ordereddict()), ('tolerations', []), ('affinity', ordereddict())])
     yaml_file = "./tests/test.yaml"
     data = vault.load_yaml(yaml_file)
+    print(data)
     assert_equal(data, data_test)
 
 def test_git_path():
@@ -43,7 +37,7 @@ def filecheckfunc():
 
 def test_enc():
     os.environ["KVVERSION"] = "v2"
-    input_values = ["adfs1", "adfs2", "adfs3"]
+    input_values = ["adfs1", "adfs2", "adfs3", "adfs4"]
     output = []
 
     def mock_input(s):
@@ -55,9 +49,30 @@ def test_enc():
     vault.main(['enc', './tests/test.yaml'])
 
     assert output == [
-        'Input a value for /nextcloud/password: ',
-        'Input a value for /externalDatabase/user: ',
-        'Input a value for /mariadb/db/password: ',
+        'Input a value for nextcloud.password: ',
+        'Input a value for externalDatabase.user: ',
+        'Input a value for externalDatabase.password: ',
+        'Input a value for mariadb.db.password: ',
+    ]
+
+def test_enc_with_env():
+    os.environ["KVVERSION"] = "v2"
+    input_values = ["adfs1", "adfs2", "adfs3", "adfs4"]
+    output = []
+
+    def mock_input(s):
+        output.append(s)
+        return input_values.pop(0)
+    vault.input = mock_input
+    vault.print = lambda s : output.append(s)
+
+    vault.main(['enc', './tests/test.yaml', '-e', 'test'])
+
+    assert output == [
+        'Input a value for nextcloud.password: ',
+        'Input a value for externalDatabase.user: ',
+        'Input a value for externalDatabase.password: ',
+        'Input a value for mariadb.db.password: ',
     ]
 
 def test_refuse_enc_from_file_with_bad_name():
@@ -70,6 +85,14 @@ def test_enc_from_file():
     vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.dec'])
     assert True # If it reaches here without error then encoding was a success
     # TODO: Maybe test if the secret is correctly saved to vault
+
+
+def test_enc_from_file_with_environment():
+    os.environ["KVVERSION"] = "v2"
+    vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.dec', '-e', 'test'])
+    assert True # If it reaches here without error then encoding was a success
+    # TODO: Maybe test if the secret is correctly saved to vault
+
 
 def test_dec():
     os.environ["KVVERSION"] = "v2"

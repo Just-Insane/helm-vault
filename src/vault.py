@@ -42,6 +42,7 @@ def parse_args(args):
     encrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     encrypt.add_argument("-s", "--secret-file", type=str, help="File containing the secret for input. Must end in .yaml.dec")
     encrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    encrypt.add_argument("-e", "--environment", type=str, help="Allows for secrets to be encoded on a per environment basis")
 
     # Decrypt help
     decrypt = subparsers.add_parser("dec", help="Parse a YAML file and retrieve values from Vault")
@@ -51,11 +52,13 @@ def parse_args(args):
     decrypt.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     decrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     decrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    decrypt.add_argument("-e", "--environment", type=str, help="Allows for secrets to be decoded on a per environment basis")
 
     # Clean help
     clean = subparsers.add_parser("clean", help="Remove decrypted files (in the current directory)")
     clean.add_argument("-f", "--file", type=str, help="The specific YAML file to be deleted, without .dec", dest="yaml_file")
     clean.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    clean.add_argument("-e", "--environment", type=str, help="Decoded environment to clean")
 
     # View Help
     view = subparsers.add_parser("view", help="View decrypted YAML file")
@@ -73,7 +76,7 @@ def parse_args(args):
     edit.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     edit.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     edit.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
-    edit.add_argument("-e", "--editor", help="Editor name. Default: (Linux/MacOS) \"vi\" (Windows) \"notepad\"", const=True, nargs="?")
+    edit.add_argument("-ed", "--editor", help="Editor name. Default: (Linux/MacOS) \"vi\" (Windows) \"notepad\"", const=True, nargs="?")
     edit.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
     # Install Help
@@ -84,6 +87,7 @@ def parse_args(args):
     install.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
     install.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], default='v1', type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     install.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    install.add_argument("-e", "--environment", type=str, help="Environment whose secrets to use")
 
     # Template Help
     template = subparsers.add_parser("template", help="Wrapper that decrypts YAML files before running helm install")
@@ -356,10 +360,12 @@ def load_yaml(yaml_file):
 def cleanup(args):
     # Cleanup decrypted files
     yaml_file = args.yaml_file
+    environment = f".{args.environment}" if args.environment is not None else ""
+    decode_file = f"{yaml_file}{environment}.dec"
     try:
-        os.remove(f"{yaml_file}.dec")
+        os.remove(decode_file)
         if args.verbose is True:
-            print(f"Deleted {yaml_file}.dec")
+            print(f"Deleted {decode_file}")
             sys.exit()
     except AttributeError:
         for fl in glob.glob("*.dec"):
@@ -389,20 +395,23 @@ def value_from_path(secret_data, path):
 
 def dict_walker(pattern, data, args, envs, secret_data, path=None):
     # Walk through the loaded dicts looking for the values we want
-    path = path if path is not None else ""
+    environment = f"/{args.environment}" if args.environment is not None else ""
+    path = path if path is not None else environment
     action = args.action
     if isinstance(data, dict):
         for key, value in data.items():
             if value == pattern or str(value).startswith(envs[VAULT_TEMPLATE_POSITION]):
                 if value.startswith(envs[VAULT_TEMPLATE_POSITION]):
-                    _full_path = value[len(envs[VAULT_TEMPLATE_POSITION]):]
+                    _full_path = value[len(envs[VAULT_TEMPLATE_POSITION]):].replace("{environment}", environment)
                 else:
                     _full_path = None
                 if action == "enc":
+                    path_sans_env = path.replace(environment, '')
                     if secret_data:
-                        data[key] = value_from_path(secret_data, f"{path}/{key}")
+                        data[key] = value_from_path(secret_data, f"{path_sans_env}/{key}")
                     else:
-                        data[key] = input(f"Input a value for {path}/{key}: ")
+                        path_to_property_syntax = path_sans_env.replace("/", ".")[1:]
+                        data[key] = input(f"Input a value for {path_to_property_syntax}.{key}: ")
                     vault = Vault(args, envs)
                     vault.vault_write(data[key], path, key, _full_path)
                 elif (action == "dec") or (action == "view") or (action == "edit") or (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
@@ -447,21 +456,24 @@ def main(argv=None):
     for path, key, value in dict_walker(envs[1], data, args, envs, secret_data):
         print("Done")
 
+    environment = f".{args.environment}" if args.environment is not None else ""
+    decode_file = f"{yaml_file}{environment}.dec"
+
     if action == "dec":
-        yaml.dump(data, open(f"{yaml_file}.dec", "w"))
+        yaml.dump(data, open(decode_file, "w"))
         print("Done Decrypting")
     elif action == "view":
         yaml.dump(data, sys.stdout)
     elif action == "edit":
-        yaml.dump(data, open(f"{yaml_file}.dec", "w"))
-        os.system(envs[2] + ' ' + f"{yaml_file}.dec")
+        yaml.dump(data, open(decode_file, "w"))
+        os.system(envs[2] + ' ' + f"{decode_file}")
     # These Helm commands are only different due to passed variables
     elif (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
-        yaml.dump(data, open(f"{yaml_file}.dec", "w"))
+        yaml.dump(data, open(decode_file, "w"))
         leftovers = ' '.join(leftovers)
 
         try:
-            subprocess.run(f"helm {args.action} {leftovers} -f {yaml_file}.dec", shell=True)
+            subprocess.run(f"helm {args.action} {leftovers} -f {decode_file}", shell=True)
         except Exception as ex:
             print(f"Error: {ex}")
 

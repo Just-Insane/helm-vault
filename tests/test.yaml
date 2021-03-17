@@ -45,7 +45,7 @@ externalDatabase:
   user: VAULT:/secret/testdata/user
 
   ## Database password
-  password:
+  password: VAULT:/secret/{environment}/testdata/password
 
   ## Database name
   database: nextcloud
