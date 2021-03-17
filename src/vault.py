@@ -58,6 +58,7 @@ def parse_args(args):
     clean = subparsers.add_parser("clean", help="Remove decrypted files (in the current directory)")
     clean.add_argument("-f", "--file", type=str, help="The specific YAML file to be deleted, without .dec", dest="yaml_file")
     clean.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
+    clean.add_argument("-e", "--environment", type=str, help="Decoded environment to clean")
 
     # View Help
     view = subparsers.add_parser("view", help="View decrypted YAML file")
@@ -354,8 +355,9 @@ def load_yaml(yaml_file):
 def cleanup(args):
     # Cleanup decrypted files
     yaml_file = args.yaml_file
+    environment = f".{args.environment}" if args.environment is not None else ""
     try:
-        os.remove(f"{yaml_file}.dec")  # TODO per env? or blanket clean yaml_file.*.dec
+        os.remove(f"{yaml_file}{environment}.dec")
         if args.verbose is True:
             print(f"Deleted {yaml_file}.dec")
             sys.exit()
