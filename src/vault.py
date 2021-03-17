@@ -128,9 +128,13 @@ class Git:
         self.cwd = cwd
 
     def get_git_root(self):
-        self.git_repo = git.Repo(self.cwd, search_parent_directories=True)
-        self.git_root = self.git_repo.git.rev_parse("--show-toplevel")
-        return self.git_root
+        try:
+            self.git_repo = git.Repo(self.cwd, search_parent_directories=True)
+            self.git_root = self.git_repo.git.rev_parse("--show-toplevel")
+            return self.git_root
+        except Exception as ex:
+            print(f"There was an error finding the root git repository, please specify a path within the yaml file. For more information, see Vault Path Templating: https://github.com/Just-Insane/helm-vault#vault-path-templating")
+            pass
 
 class Envs:
     def __init__(self, args):

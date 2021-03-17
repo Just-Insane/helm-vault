@@ -112,6 +112,7 @@ To get started with Helm-Vault, follow these steps:
 - [ ] Environment Variables for Vault
   - [ ] VAULT_ADDR: The HTTP Address of Vault
   - [ ] VAULT_TOKEN: The token for accessing Vault
+- [ ] YAML files must be in a git repo or have the full path specified in the file. See [Vault Path Templating](#vault-path-templating).
 
 ## Getting the Source
 
