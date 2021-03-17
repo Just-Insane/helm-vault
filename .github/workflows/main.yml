@@ -35,7 +35,7 @@ jobs:
           VAULT_DEV_ROOT_TOKEN_ID: "802e831f-bf5e-2740-d1f1-bbd936140e0b"
           SKIP_SETCAP: "true"
         options: >-
-          -dev
+          -d
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
