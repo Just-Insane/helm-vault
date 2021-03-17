@@ -355,7 +355,7 @@ def cleanup(args):
     # Cleanup decrypted files
     yaml_file = args.yaml_file
     try:
-        os.remove(f"{yaml_file}.dec")
+        os.remove(f"{yaml_file}.dec")  # TODO per env? or blanket clean yaml_file.*.dec
         if args.verbose is True:
             print(f"Deleted {yaml_file}.dec")
             sys.exit()
@@ -394,7 +394,7 @@ def dict_walker(pattern, data, args, envs, secret_data, path=None):
         for key, value in data.items():
             if value == pattern or str(value).startswith(envs[VAULT_TEMPLATE_POSITION]):
                 if value.startswith(envs[VAULT_TEMPLATE_POSITION]):
-                    _full_path = value[len(envs[VAULT_TEMPLATE_POSITION]):]
+                    _full_path = value[len(envs[VAULT_TEMPLATE_POSITION]):].replace("{environment}", environment)
                 else:
                     _full_path = None
                 if action == "enc":
@@ -446,17 +446,20 @@ def main(argv=None):
     for path, key, value in dict_walker(envs[1], data, args, envs, secret_data):
         print("Done")
 
+    environment = f".{args.environment}" if args.environment is not None else ""
+    decode_file = f"{yaml_file}{environment}.dec"
+
     if action == "dec":
-        yaml.dump(data, open(f"{yaml_file}.dec", "w"))
+        yaml.dump(data, open(decode_file, "w"))
         print("Done Decrypting")
     elif action == "view":
         yaml.dump(data, sys.stdout)
     elif action == "edit":
-        yaml.dump(data, open(f"{yaml_file}.dec", "w"))
+        yaml.dump(data, open(decode_file, "w"))
         os.system(envs[2] + ' ' + f"{yaml_file}.dec")
     # These Helm commands are only different due to passed variables
     elif (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):
-        yaml.dump(data, open(f"{yaml_file}.dec", "w"))
+        yaml.dump(data, open(decode_file, "w"))
         leftovers = ' '.join(leftovers)
 
         try:
