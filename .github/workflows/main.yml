@@ -1,0 +1,57 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, review_requested, ready_for_review]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+    env:
+      VAULT_DEV_ROOT_TOKEN_ID: "802e831f-bf5e-2740-d1f1-bbd936140e0b"
+      SKIP_SETCAP: "true"
+      VAULT_ADDR: "http://vault:8200"
+      VAULT_TOKEN: "802e831f-bf5e-2740-d1f1-bbd936140e0b"
+      KVVERSION: "v2"
+    
+    services:
+      vault:
+        image: vault:latest
+        ports:
+          - 8200:8200
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # You can test your matrix by printing the current Python version
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r ./tests/requirements.txt
+      - name: Test with pytest
+        run: |
+          echo "Running Tests"
+          python -m pytest
+      
