@@ -14,3 +14,4 @@ jobs:
       with:
         token: ${{ secrets.TOKEN }}
         project_id: 20740301
+        debug: true
