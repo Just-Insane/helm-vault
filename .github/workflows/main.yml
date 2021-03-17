@@ -7,7 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
   pull_request:
-    types: [opened, synchronize, reopened, edited, review_requested, ready_for_review]
+    types: [opened, synchronize, reopened, review_requested, ready_for_review]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
