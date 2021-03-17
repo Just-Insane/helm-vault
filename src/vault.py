@@ -402,10 +402,12 @@ def dict_walker(pattern, data, args, envs, secret_data, path=None):
                 else:
                     _full_path = None
                 if action == "enc":
+                    path_sans_env = path.replace(environment, '')
                     if secret_data:
-                        data[key] = value_from_path(secret_data, f"{path}/{key}")
+                        data[key] = value_from_path(secret_data, f"{path_sans_env}/{key}")
                     else:
-                        data[key] = input(f"Input a value for {path}/{key}: ")
+                        path_to_property_syntax = path_sans_env.replace("/", ".")[1:]
+                        data[key] = input(f"Input a value for {path_to_property_syntax}.{key}: ")
                     vault = Vault(args, envs)
                     vault.vault_write(data[key], path, key, _full_path)
                 elif (action == "dec") or (action == "view") or (action == "edit") or (action == "install") or (action == "template") or (action == "upgrade") or (action == "lint") or (action == "diff"):

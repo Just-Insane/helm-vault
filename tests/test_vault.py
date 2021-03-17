@@ -49,10 +49,30 @@ def test_enc():
     vault.main(['enc', './tests/test.yaml'])
 
     assert output == [
-        'Input a value for /nextcloud/password: ',
-        'Input a value for /externalDatabase/user: ',
-        'Input a value for /externalDatabase/password: ',
-        'Input a value for /mariadb/db/password: ',
+        'Input a value for nextcloud.password: ',
+        'Input a value for externalDatabase.user: ',
+        'Input a value for externalDatabase.password: ',
+        'Input a value for mariadb.db.password: ',
+    ]
+
+def test_enc_with_env():
+    os.environ["KVVERSION"] = "v2"
+    input_values = ["adfs1", "adfs2", "adfs3", "adfs4"]
+    output = []
+
+    def mock_input(s):
+        output.append(s)
+        return input_values.pop(0)
+    vault.input = mock_input
+    vault.print = lambda s : output.append(s)
+
+    vault.main(['enc', './tests/test.yaml', '-e', 'test'])
+
+    assert output == [
+        'Input a value for nextcloud.password: ',
+        'Input a value for externalDatabase.user: ',
+        'Input a value for externalDatabase.password: ',
+        'Input a value for mariadb.db.password: ',
     ]
 
 def test_refuse_enc_from_file_with_bad_name():
@@ -65,6 +85,14 @@ def test_enc_from_file():
     vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.dec'])
     assert True # If it reaches here without error then encoding was a success
     # TODO: Maybe test if the secret is correctly saved to vault
+
+
+def test_enc_from_file_with_environment():
+    os.environ["KVVERSION"] = "v2"
+    vault.main(['enc', './tests/test.yaml', '-s', './tests/test.yaml.dec', '-e', 'test'])
+    assert True # If it reaches here without error then encoding was a success
+    # TODO: Maybe test if the secret is correctly saved to vault
+
 
 def test_dec():
     os.environ["KVVERSION"] = "v2"
