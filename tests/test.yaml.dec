@@ -39,13 +39,13 @@ externalDatabase:
   enabled: false
 
   ## Database host
-  host:
+  host: nextpass
 
   ## Database user
-  user:
+  user: nextcloud
 
   ## Database password
-  password:
+  password: mariapass
 
   ## Database name
   database: nextcloud
