@@ -7,7 +7,7 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Just-Insane/helm-vault.svg?style=flat-square)](https://github.com/Just-Insane/helm-vault/pulls)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/Just-Insane/helm-vault.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Just-Insane/helm-vault/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Just-Insane/helm-vault.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Just-Insane/helm-vault/context:python)
-[![Build Status](https://gitlab.com/just.insane/helm-vault/badges/master/pipeline.svg)](https://gitlab.com/just.insane/helm-vault/pipelines)
+[![CI](https://github.com/Just-Insane/helm-vault/actions/workflows/main.yml/badge.svg)](https://github.com/Just-Insane/helm-vault/actions/workflows/main.yml)
 
 # Helm-Vault
 
@@ -83,7 +83,7 @@ Input a value for /nextcloud/password:
 
 Build Status:
 
-[![Build Status](https://gitlab.com/just.insane/helm-vault/badges/master/pipeline.svg)](https://gitlab.com/just.insane/helm-vault/pipelines)
+[![CI](https://github.com/Just-Insane/helm-vault/actions/workflows/main.yml/badge.svg)](https://github.com/Just-Insane/helm-vault/actions/workflows/main.yml)
 
 Helm-Vault is in a production state. It should work across platforms, and should be able to handle most YAML thrown at it.
 
@@ -133,7 +133,7 @@ python3 -m pytest
 
 ### Other Tests
 
-Unittesting and integration testing is automatically run on Gitlab per commit.
+Unittesting and integration testing is automatically run via Github Actions on commit and PRs.
 
 Additionally, code quality checking is handled by LGTM.com
 
