@@ -181,13 +181,14 @@ Decrypted files have the suffix ".yaml.dec" by default
 
 ### Environment Variables
 
-**Note:** The environment variables currently take precedent over passed flags, expect this to change in a later version.
+**Note:** Flags take precedent over Environment Variables.
 
 |Environment Variable|Default Value<br>(if unset)|Overview|Required|
 |--------------------|---------------------------|--------|--------|
 |`VAULT_ADDR`|`null`|The HTTP(S) address fo Vault|Yes|
 |`VAULT_TOKEN`|`null`|The token used to authenticate with Vault|Yes|
 |`VAULT_PATH`|`secret/helm`|The default path used within Vault||
+|`VAULT_MOUNT_POINT`|`secret/data`|The default mountpoint used within Vault||
 |`SECRET_DELIM`|`changeme`|The value which will be searched for within YAML to prompt for encryption/decryption||
 |`SECRET_TEMPLATE`|`VAULT:`|Used for [Vault Path Templating](#vault-path-templating)||
 |`EDITOR`| - Windows: `notepad` <br> - macOS/Linux: `vi`|The editor used when calling `helm vault edit`||
@@ -217,6 +218,12 @@ Default when not set: `null`, the program will error and inform you that this va
 This is the path within Vault that secrets are stored. It should start with the name of the secrets engine being used and an optional folder within that secrets engine that all Helm-Vault secrets will be stored.
 
 Default when not set: `secret/helm`, where `secret` is the secrets engine being used, and `helm` is the folder in which all secrets will be stored.
+</details>
+<summary>VAULT_MOUNT_POINT</summary>
+
+This is the mountpoint within Vault that secrets are stored. Vault stores secrets in the following url format `/{mount_point}/data/{path}`. Mountpoint in this case could also include any namespaces, e.g. `namespace1/subnamespace/mountpoint` = `/namespace1/subnamespace/mountpoint/data/{path}`.
+
+Default when not set: `secret`, where `secret` is the mountpoint being used.
 </details>
 
 <details>

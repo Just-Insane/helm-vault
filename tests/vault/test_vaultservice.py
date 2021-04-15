@@ -15,11 +15,13 @@ class Vault:
         self.client.secrets.kv.v2.create_or_update_secret(
             path=self.secret_path,
             secret=dict(value=writevalue),
+            mount_point = self.mount_path
         )
 
     def vault_read(self, readvalue):
         secret_version_response = self.client.secrets.kv.v2.read_secret_version(
             path=self.secret_path,
+            mount_point = self.mount_path
         )
         secret = secret_version_response.get("data", {}).get("data", {}).get("value")
         assert secret == readvalue
