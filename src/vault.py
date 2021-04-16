@@ -156,6 +156,7 @@ class Envs:
         self.secret_delim = self.get_env("SECRET_DELIM", "deliminator", "changeme")
         self.secret_template = self.get_env("SECRET_TEMPLATE", "vaulttemplate", "VAULT:")
         self.kvversion = self.get_env("KVVERSION", "kvversion", "v1")
+        self.environment = self.get_env("NONE", "environment", "")
 
         if platform.system() != "Windows":
             editor_default = "vi"
@@ -177,7 +178,7 @@ class Envs:
                 value = v
                 source = "ARG"
 
-        if value is None and default_value:
+        if value is None and default_value is not None:
             value = default_value
             source = "DEFAULT"
 
@@ -252,7 +253,7 @@ class Vault:
         try:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
-                print(f"Attempting to write to url: {self.env.vault_addr}/v1/{mount_point}/data{_path}")
+                print(f"Attempting to write to url: {self.envs.vault_addr}/v1/{mount_point}/data{_path}")
 
             if self.kvversion == "v1":
                 value = self.client.read(_path)
@@ -277,11 +278,10 @@ def load_yaml(yaml_file):
         data = yaml.load(filepath)
         return data
 
-def cleanup(args):
+def cleanup(args, envs):
     # Cleanup decrypted files
     yaml_file = args.yaml_file
-    environment = f".{args.environment}" if args.environment is not None else ""
-    decode_file = f"{yaml_file}{environment}.dec"
+    decode_file = '.'.join(filter(None, [yaml_file, envs.environment, 'dec']))
     try:
         os.remove(decode_file)
         if args.verbose is True:
@@ -315,7 +315,8 @@ def value_from_path(secret_data, path):
 
 def dict_walker(pattern, data, args, envs, secret_data, path=None):
     # Walk through the loaded dicts looking for the values we want
-    environment = f"/{args.environment}" if args.environment is not None else ""
+    environment = f"/{envs.environment}" if envs.environment else ""
+
     path = path if path is not None else environment
     action = args.action
     if isinstance(data, dict):
@@ -364,19 +365,19 @@ def main(argv=None):
     data = load_yaml(yaml_file)
     action = args.action
 
-    if action == "clean":
-        cleanup(args)
-
     envs = Envs(args)
+
+    if action == "clean":
+        cleanup(args, envs)
+
     yaml = ruamel.yaml.YAML()
     yaml.preserve_quotes = True
     secret_data = load_secret(args) if args.action == 'enc' else None
 
     for path, key, value in dict_walker(envs.secret_delim, data, args, envs, secret_data):
         print("Done")
-
-    environment = f".{args.environment}" if args.environment is not None else ""
-    decode_file = f"{yaml_file}{environment}.dec"
+    
+    decode_file = '.'.join(filter(None, [yaml_file, envs.environment, 'dec']))
 
     if action == "dec":
         yaml.dump(data, open(decode_file, "w"))
@@ -392,11 +393,14 @@ def main(argv=None):
         leftovers = ' '.join(leftovers)
 
         try:
-            subprocess.run(f"helm {args.action} {leftovers} -f {decode_file}", shell=True)
+            cmd = f"helm {args.action} {leftovers} -f {decode_file}"
+            if args.verbose is True:
+                print(f"About to execute command: {cmd}")
+            subprocess.run(cmd, shell=True)
         except Exception as ex:
             print(f"Error: {ex}")
 
-        cleanup(args)
+        cleanup(args, envs)
 
 if __name__ == "__main__":
     try:
