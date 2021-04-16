@@ -188,7 +188,7 @@ Decrypted files have the suffix ".yaml.dec" by default
 |`VAULT_ADDR`|`null`|The HTTP(S) address fo Vault|Yes|
 |`VAULT_TOKEN`|`null`|The token used to authenticate with Vault|Yes|
 |`VAULT_PATH`|`secret/helm`|The default path used within Vault||
-|`VAULT_MOUNT_POINT`|`secret/data`|The default mountpoint used within Vault||
+|`VAULT_MOUNT_POINT`|`secret`|The default mountpoint used within Vault||
 |`SECRET_DELIM`|`changeme`|The value which will be searched for within YAML to prompt for encryption/decryption||
 |`SECRET_TEMPLATE`|`VAULT:`|Used for [Vault Path Templating](#vault-path-templating)||
 |`EDITOR`| - Windows: `notepad` <br> - macOS/Linux: `vi`|The editor used when calling `helm vault edit`||
@@ -219,6 +219,8 @@ This is the path within Vault that secrets are stored. It should start with the 
 
 Default when not set: `secret/helm`, where `secret` is the secrets engine being used, and `helm` is the folder in which all secrets will be stored.
 </details>
+
+<details>
 <summary>VAULT_MOUNT_POINT</summary>
 
 This is the mountpoint within Vault that secrets are stored. Vault stores secrets in the following url format `/{mount_point}/data/{path}`. Mountpoint in this case could also include any namespaces, e.g. `namespace1/subnamespace/mountpoint` = `/namespace1/subnamespace/mountpoint/data/{path}`.
@@ -282,6 +284,7 @@ Each of these commands have their own help, referenced by `helm vault {enc,dec,c
 |----|-----|-------|------------|
 |`-d`, `--deliminator`|The secret deliminator used when parsing|`changeme`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-vp`, `--vaultpath`|The Vault Path (secret mount location in Vault)|`secret/helm`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
+|`-mp`, `--mountpoint`|The Vault Mount Point|`secret`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-vt`, `--vaulttemplate`|Substring with path to vault key instead of deliminator.|`VAULT:`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-kv`, `--kvversion`|The version of the KV secrets engine in Vault|`v1`|`enc`, `dec`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
 |`-v`, `--verbose`|Verbose output||`enc`, `dec`, `clean`, `view`, `edit`, `install`, `template`, `upgrade`, `lint`, `diff`|
