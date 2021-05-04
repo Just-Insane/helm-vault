@@ -8,6 +8,7 @@ import argparse
 RawTextHelpFormatter = argparse.RawTextHelpFormatter
 import glob
 import sys
+import shutil
 import git
 import platform
 import subprocess
@@ -253,7 +254,7 @@ class Vault:
         try:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
-                print(f"Attempting to write to url: {self.envs.vault_addr}/v1/{mount_point}/data{_path}")
+                print(f"Attempting to read from url: {self.envs.vault_addr}/v1/{mount_point}/data{_path}")
 
             if self.kvversion == "v1":
                 value = self.client.read(_path)
@@ -278,15 +279,24 @@ def load_yaml(yaml_file):
         data = yaml.load(filepath)
         return data
 
-def cleanup(args, envs):
+def cleanup(args, envs, chart_name=None):
     # Cleanup decrypted files
     yaml_file = args.yaml_file
     decode_file = '.'.join(filter(None, [yaml_file, envs.environment, 'dec']))
     try:
-        os.remove(decode_file)
-        if args.verbose is True:
-            print(f"Deleted {decode_file}")
-            sys.exit()
+        if chart_name:
+            fileList = glob.glob(f'/tmp/{chart_name}*.tgz')
+            for filePath in fileList:
+                try:
+                    os.remove(filePath)
+                except Exception:
+                    print("Error while deleting file : ", filePath)
+            shutil.rmtree(f'/tmp/{chart_name}')
+        else:
+            os.remove(decode_file)
+            if args.verbose is True:
+                print(f"Deleted {decode_file}")
+                sys.exit()
     except AttributeError:
         for fl in glob.glob("*.dec"):
             os.remove(fl)
@@ -354,6 +364,47 @@ def load_secret(args):
             raise Exception(f"ERROR: Secret file name must end with \".yaml.dec\". {args.secret_file} was given instead.")
         return load_yaml(args.secret_file)
 
+
+def download_and_expand_packaged_chart(chart, name, args):
+    if args.verbose is True:
+        print(f"Downloading Packaged Chart")
+    subprocess.run(f"helm pull {chart} -d /tmp", shell=True)
+    subprocess.run(f"tar --directory /tmp/ -xf /tmp/{name}*.tgz {name}/values.yaml", shell=True)
+    yaml_file = f"/tmp/{name}/values.yaml"
+
+    return yaml_file
+
+
+def get_chart_path(leftovers):
+    for arg in leftovers:
+        if '/' in arg:
+            return arg
+    return None
+
+
+def handle_yaml(args, leftovers):
+    if args.verbose is True:
+        print(f"Handling YAML")
+
+    yaml_file = args.yaml_file
+    chart_name_to_clean = None
+
+    if (args.action == 'install' or args.action == 'upgrade') and not yaml_file:
+        chart_path = get_chart_path(leftovers)
+        chart_name = chart_path.split('/')[-1]
+        chart_name_to_clean = chart_name
+        yaml_file = download_and_expand_packaged_chart(chart_path, chart_name, args)
+    elif args.action == "enc":
+        if not os.path.isfile(yaml_file):
+            chart_path = yaml_file
+            chart_name = chart_path.split('/')[-1]
+            chart_name_to_clean = chart_name
+            yaml_file = download_and_expand_packaged_chart(chart_path, chart_name, args)
+
+    data = load_yaml(yaml_file)
+    return yaml_file, data, chart_name_to_clean
+
+
 def main(argv=None):
 
     # Parse arguments from argparse
@@ -361,8 +412,7 @@ def main(argv=None):
     parsed = parse_args(argv)
     args, leftovers = parsed.parse_known_args(argv)
 
-    yaml_file = args.yaml_file
-    data = load_yaml(yaml_file)
+    yaml_file, data, chart_name_to_clean = handle_yaml(args, leftovers)
     action = args.action
 
     envs = Envs(args)
@@ -400,7 +450,7 @@ def main(argv=None):
         except Exception as ex:
             print(f"Error: {ex}")
 
-        cleanup(args, envs)
+        cleanup(args, envs, chart_name_to_clean)
 
 if __name__ == "__main__":
     try:
