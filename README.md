@@ -131,6 +131,12 @@ pip3 install -r ./tests/requirements.txt
 python3 -m pytest
 ```
 
+for running tests using docker, you can use the following command:
+
+```
+./run-test.sh
+```
+
 ### Other Tests
 
 Unittesting and integration testing is automatically run via Github Actions on commit and PRs.

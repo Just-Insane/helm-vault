@@ -1,0 +1,16 @@
+version: "3.5"
+services:
+  vault:
+    container_name: helm-vault
+    image: vault
+    ports:
+      - 8200:8200
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "802e831f-bf5e-2740-d1f1-bbd936140e0b"
+      SKIP_SETCAP: "true"
+      VAULT_ADDR: "http://localhost:8200"
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
