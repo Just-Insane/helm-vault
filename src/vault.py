@@ -26,8 +26,9 @@ def parse_args(args):
     \n
     Environment Variables:
     \n
-    VAULT_ADDR:     (The HTTP address of Vault, for example, http://localhost:8200)
-    VAULT_TOKEN:    (The token used to authenticate with Vault)
+    VAULT_ADDR:         (The HTTP address of Vault, for example, http://localhost:8200)
+    VAULT_TOKEN:        (The token used to authenticate with Vault)
+    VAULT_NAMESPACE:    (The Vault Namespace to use (Vault enterprise only))
     """, formatter_class=RawTextHelpFormatter)
     subparsers = parser.add_subparsers(dest="action", required=True)
 
@@ -145,7 +146,6 @@ class Git:
             return self.git_root
         except Exception as ex:
             print(f"There was an error finding the root git repository, please specify a path within the yaml file. For more information, see Vault Path Templating: https://github.com/Just-Insane/helm-vault#vault-path-templating")
-            pass
 
 class Envs:
     def __init__(self, args):
