@@ -131,6 +131,12 @@ pip3 install -r ./tests/requirements.txt
 python3 -m pytest
 ```
 
+for running tests using docker, you can use the following command:
+
+```
+./run-test.sh
+```
+
 ### Other Tests
 
 Unittesting and integration testing is automatically run via Github Actions on commit and PRs.
@@ -187,6 +193,7 @@ Decrypted files have the suffix ".yaml.dec" by default
 |--------------------|---------------------------|--------|--------|
 |`VAULT_ADDR`|`null`|The HTTP(S) address fo Vault|Yes|
 |`VAULT_TOKEN`|`null`|The token used to authenticate with Vault|Yes|
+|`VAULT_NAMESPACE`|`null`|The Vault namespace used for the command||
 |`VAULT_PATH`|`secret/helm`|The default path used within Vault||
 |`VAULT_MOUNT_POINT`|`secret`|The default mountpoint used within Vault||
 |`SECRET_DELIM`|`changeme`|The value which will be searched for within YAML to prompt for encryption/decryption||
@@ -210,6 +217,14 @@ Default when not set: `null`, the program will error and inform you that this ad
 The token used to authenticate with Vault.
 
 Default when not set: `null`, the program will error and inform you that this value needs to be set as an environment variable.
+</details>
+
+<details>
+<summary>VAULT_NAMESPACE</summary>
+
+The Vault namespace used for the command. Namespaces are isolated environments that functionally exist as "Vaults within a Vault." They have separate login paths and support creating and managing data isolated to their namespace. Namespaces are only available in Vault Enterprise.
+
+Default when not set: `null`.
 </details>
 
 <details>

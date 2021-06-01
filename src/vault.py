@@ -198,7 +198,7 @@ class Vault:
 
         # Setup Vault client (hvac)
         try:
-            self.client = hvac.Client(url=self.envs.vault_addr, token=os.environ["VAULT_TOKEN"])
+            self.client = hvac.Client(url=self.envs.vault_addr, namespace=os.environ.get("VAULT_NAMESPACE"), token=os.environ["VAULT_TOKEN"])
         except KeyError:
             print("Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables.")
         except Exception as ex:
