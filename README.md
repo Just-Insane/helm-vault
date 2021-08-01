@@ -513,7 +513,7 @@ This project uses [Semantic Versioning](http://semver.org/). For a list of avail
 
 # How to Get Help
 
-If you need help or have questions, please open an issue with the question label.
+If you need help or have questions, please open a new discussion Q&A section.
 
 # Contributing
 
