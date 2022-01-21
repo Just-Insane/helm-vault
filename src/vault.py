@@ -395,21 +395,19 @@ def main(argv=None):
             subprocess.run(cmd, shell=True, check=True)
         except subprocess.CalledProcessError as ex:
             cleanup(args, envs)
-            return ex.returncode
+            sys.exit(ex.returncode)
         except Exception as ex:
             print(f"Error: {ex}")
             cleanup(args, envs)
-            return 1
 
         cleanup(args, envs)
 
     return 0
 
 if __name__ == "__main__":
-    ret = 0
     try:
-        ret = main()
+        main()
     except Exception as ex:
         print(f"ERROR: {ex}")
-        ret = 1
-    sys.exit(ret)
+    except SystemExit as ex:
+        sys.exit(ex.code)
