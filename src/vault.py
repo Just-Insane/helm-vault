@@ -286,17 +286,13 @@ def cleanup(args, envs):
         os.remove(decode_file)
         if args.verbose is True:
             print(f"Deleted {decode_file}")
-            sys.exit()
     except AttributeError:
         for fl in glob.glob("*.dec"):
             os.remove(fl)
             if args.verbose is True:
                 print(f"Deleted {fl}")
-                sys.exit()
     except Exception as ex:
         print(f"Error: {ex}")
-    else:
-        sys.exit()
 
 # Get value from a nested hash structure given a path of key names
 # For example:
@@ -396,16 +392,24 @@ def main(argv=None):
             cmd = f"helm {args.action} {leftovers} -f {decode_file}"
             if args.verbose is True:
                 print(f"About to execute command: {cmd}")
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
+        except subprocess.CalledProcessError as ex:
+            cleanup(args, envs)
+            return ex.returncode
         except Exception as ex:
             print(f"Error: {ex}")
+            cleanup(args, envs)
+            return 1
 
         cleanup(args, envs)
 
+    return 0
+
 if __name__ == "__main__":
+    ret = 0
     try:
-        main()
+        ret = main()
     except Exception as ex:
         print(f"ERROR: {ex}")
-    except SystemExit:
-        pass
+        ret = 1
+    sys.exit(ret)
