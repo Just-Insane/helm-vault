@@ -10,6 +10,14 @@ from datadiff.tools import assert_equal
 
 import src.vault as vault
 
+# Check if helm is installed
+helm_available = None
+if subprocess.call(['which', 'helm']) == 0:
+    subprocess.call(['helm', 'repo', 'add', 'nextcloud', 'https://nextcloud.github.io/helm/'])
+    subprocess.call(['helm', 'repo', 'update'])
+    helm_available = True
+else:
+    helm_available = False
 
 def test_load_yaml():
 
@@ -18,6 +26,12 @@ def test_load_yaml():
     data = vault.load_yaml(yaml_file)
     print(data)
     assert_equal(data, data_test)
+
+def test_load_broken_yaml():
+    broken_yaml_file = "./tests/broken.yaml"
+    with pytest.raises(vault.ruamel.yaml.scanner.ScannerError):
+        broken_data = vault.load_yaml(broken_yaml_file)
+        print(broken_data)
 
 def test_git_path():
     cwd = os.getcwd()
@@ -146,20 +160,9 @@ def test_clean():
     copyfile("./tests/test.yaml.dec.bak", "./tests/test.yaml.dec")
     os.remove("./tests/test.yaml.dec.bak")
 
-@pytest.mark.skipif(subprocess.run("helm", shell=True), reason="No way of testing without Helm")
-def test_install():
+@pytest.mark.skipif(not helm_available, reason="No way of testing without Helm")
+def test_install(capfd):
     os.environ["KVVERSION"] = "v2"
-    input_values = []
-    output = []
-
-    def mock_input(s):
-        output.append(s)
-        return input_values.pop(0)
-    vault.input = mock_input
-    vault.print = lambda  s : output.append(s)
-
-    vault.main(['install', 'stable/nextcloud --name nextcloud --namespace nextcloud -f ../tests/test.yaml --dry-run'])
-
-    assert output == [
-        'NAME:   nextcloud',
-    ]
+    vault.main(['install', '-f', './tests/test.yaml', 'nextcloud nextcloud/nextcloud --namespace nextcloud --dry-run'])
+    cap = capfd.readouterr()
+    assert 'NAME: nextcloud' in cap.out.strip()
