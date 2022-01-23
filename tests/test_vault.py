@@ -163,6 +163,25 @@ def test_clean():
 @pytest.mark.skipif(not helm_available, reason="No way of testing without Helm")
 def test_install(capfd):
     os.environ["KVVERSION"] = "v2"
-    vault.main(['install', '-f', './tests/test.yaml', 'nextcloud nextcloud/nextcloud --namespace nextcloud --dry-run'])
+    copyfile("./tests/test.yaml", "./tests/values.yaml")
+    vault.main(['install', '-f', './tests/values.yaml', 'nextcloud nextcloud/nextcloud --namespace nextcloud --dry-run'])
     cap = capfd.readouterr()
     assert 'NAME: nextcloud' in cap.out.strip()
+    os.remove("./tests/values.yaml")
+
+@pytest.mark.skipif(not helm_available, reason="No way of testing without Helm")
+def test_lint(capfd):
+    os.environ["KVVERSION"] = "v2"
+    copyfile("./tests/test.yaml", "./tests/values.yaml")
+    vault.main(['lint', '-f', './tests/values.yaml', './tests/helm/good_chart'])
+    cap = capfd.readouterr()
+    assert 'Linting ./tests/helm/good_chart' in cap.out.strip()
+    os.remove("./tests/values.yaml")
+
+@pytest.mark.skipif(not helm_available, reason="No way of testing without Helm")
+def test_bad_lint():
+    os.environ["KVVERSION"] = "v2"
+    copyfile("./tests/test.yaml", "./tests/values.yaml")
+    with pytest.raises(SystemExit):
+        vault.main(['lint', '-f', './tests/values.yaml', './tests/helm/bad_chart'])
+    os.remove("./tests/values.yaml")
