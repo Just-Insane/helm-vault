@@ -19,6 +19,14 @@ if subprocess.call(['which', 'helm']) == 0:
 else:
     helm_available = False
 
+# Check if kubernetes is available and running
+k8s_available = None
+if subprocess.call(['which', 'kubectl']) == 0:
+    if subprocess.call(['kubectl', 'cluster-info']) == 0:
+        k8s_available = True
+else:
+    k8s_available = False
+
 def test_load_yaml():
 
     data_test = ordereddict([('image', ordereddict([('repository', 'nextcloud'), ('tag', '15.0.2-apache'), ('pullPolicy', 'IfNotPresent')])), ('nameOverride', ''), ('fullnameOverride', ''), ('replicaCount', 1), ('ingress', ordereddict([('enabled', True), ('annotations', ordereddict())])), ('nextcloud', ordereddict([('host', 'nextcloud.corp.justin-tech.com'), ('username', 'admin'), ('password', 'changeme')])), ('internalDatabase', ordereddict([('enabled', True), ('name', 'nextcloud')])), ('externalDatabase', ordereddict([('enabled', False), ('host', None), ('user', 'VAULT:/secret/testdata/user'), ('password', 'VAULT:/secret/{environment}/testdata/password'), ('database', 'nextcloud')])), ('mariadb', ordereddict([('enabled', True), ('db', ordereddict([('name', 'nextcloud'), ('user', 'nextcloud'), ('password', 'changeme')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')]))])), ('service', ordereddict([('type', 'ClusterIP'), ('port', 8080), ('loadBalancerIP', 'nil')])), ('persistence', ordereddict([('enabled', True), ('storageClass', 'nfs-client'), ('accessMode', 'ReadWriteOnce'), ('size', '8Gi')])), ('resources', ordereddict()), ('nodeSelector', ordereddict()), ('tolerations', []), ('affinity', ordereddict())])
@@ -160,7 +168,7 @@ def test_clean():
     copyfile("./tests/test.yaml.dec.bak", "./tests/test.yaml.dec")
     os.remove("./tests/test.yaml.dec.bak")
 
-@pytest.mark.skipif(not helm_available, reason="No way of testing without Helm")
+@pytest.mark.skipif(not (helm_available and k8s_available), reason="No way of testing without Helm")
 def test_install(capfd):
     os.environ["KVVERSION"] = "v2"
     # copy test values to prevent deletion of test.yaml.dec
