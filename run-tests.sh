@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -6,7 +6,7 @@ export VAULT_ADDR="http://localhost:8200"
 export VAULT_TOKEN="802e831f-bf5e-2740-d1f1-bbd936140e0b"
 export KVVERSION="v2"
 
-docker compose up -d 
+docker-compose up -d
 function getContainerHealth {
     docker inspect --format "{{json .State.Health.Status }}" $1
 }
@@ -29,3 +29,4 @@ printf $'\n'
 # install and run tests
 pip3 install -r ./tests/requirements.txt
 python3 -m pytest
+docker-compose down
