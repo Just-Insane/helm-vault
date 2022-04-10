@@ -258,17 +258,17 @@ class Vault:
             if self.kvversion == "v1":
                 value = self.client.read(_path)
                 value = value.get("data", {}).get("value")
+                return value
             elif self.kvversion == "v2":
                 value = self.client.secrets.kv.v2.read_secret_version(path=_path,mount_point=mount_point)
                 value = value.get("data", {}).get("data", {}).get("value")
+                return value
             else:
                 print("Wrong KV Version specified, either v1 or v2")
         except AttributeError as ex:
             print(f"Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables. {ex}")
         except Exception as ex:
             print(f"Error: {ex}")
-
-        return value
 
 def load_yaml(yaml_file):
     # Load the YAML file
