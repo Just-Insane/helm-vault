@@ -110,3 +110,7 @@ venv.bak/
 
 # mac
 .DS_Store
+
+pyvenv.cfg
+bin
+man
