@@ -1,0 +1,5 @@
+Your chart has been successfully released.
+
+To check it's state, run:
+
+  helm status {{.Release.Name}}
