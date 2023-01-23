@@ -10,6 +10,22 @@ from datadiff.tools import assert_equal
 
 import src.vault as vault
 
+# Check if helm is installed
+helm_available = None
+if subprocess.call(['which', 'helm']) == 0:
+    subprocess.call(['helm', 'repo', 'add', 'nextcloud', 'https://nextcloud.github.io/helm/'])
+    subprocess.call(['helm', 'repo', 'update'])
+    helm_available = True
+else:
+    helm_available = False
+
+# Check if kubernetes is available and running
+k8s_available = None
+if subprocess.call(['which', 'kubectl']) == 0:
+    if subprocess.call(['kubectl', 'cluster-info']) == 0:
+        k8s_available = True
+else:
+    k8s_available = False
 
 def test_load_yaml():
 
@@ -18,6 +34,12 @@ def test_load_yaml():
     data = vault.load_yaml(yaml_file)
     print(data)
     assert_equal(data, data_test)
+
+def test_load_broken_yaml():
+    broken_yaml_file = "./tests/broken.yaml"
+    with pytest.raises(vault.ruamel.yaml.scanner.ScannerError):
+        broken_data = vault.load_yaml(broken_yaml_file)
+        print(broken_data)
 
 def test_git_path():
     cwd = os.getcwd()
@@ -146,20 +168,31 @@ def test_clean():
     copyfile("./tests/test.yaml.dec.bak", "./tests/test.yaml.dec")
     os.remove("./tests/test.yaml.dec.bak")
 
-@pytest.mark.skipif(subprocess.run("helm", shell=True), reason="No way of testing without Helm")
-def test_install():
+@pytest.mark.skipif(not (helm_available and k8s_available), reason="No way of testing without Helm")
+def test_install(capfd):
     os.environ["KVVERSION"] = "v2"
-    input_values = []
-    output = []
+    # copy test values to prevent deletion of test.yaml.dec
+    copyfile("./tests/test.yaml", "./tests/values.yaml")
+    vault.main(['install', '-f', './tests/values.yaml', 'nextcloud nextcloud/nextcloud --namespace nextcloud --dry-run'])
+    cap = capfd.readouterr()
+    assert 'NAME: nextcloud' in cap.out.strip()
+    os.remove("./tests/values.yaml")
 
-    def mock_input(s):
-        output.append(s)
-        return input_values.pop(0)
-    vault.input = mock_input
-    vault.print = lambda  s : output.append(s)
+@pytest.mark.skipif(not helm_available, reason="No way of testing without Helm")
+def test_lint(capfd):
+    os.environ["KVVERSION"] = "v2"
+    # copy test values to prevent deletion of test.yaml.dec
+    copyfile("./tests/test.yaml", "./tests/values.yaml")
+    vault.main(['lint', '-f', './tests/values.yaml', './tests/helm/good_chart'])
+    cap = capfd.readouterr()
+    assert 'Linting ./tests/helm/good_chart' in cap.out.strip()
+    os.remove("./tests/values.yaml")
 
-    vault.main(['install', 'stable/nextcloud --name nextcloud --namespace nextcloud -f ../tests/test.yaml --dry-run'])
-
-    assert output == [
-        'NAME:   nextcloud',
-    ]
+@pytest.mark.skipif(not helm_available, reason="No way of testing without Helm")
+def test_bad_lint():
+    os.environ["KVVERSION"] = "v2"
+    # copy test values to prevent deletion of test.yaml.dec
+    copyfile("./tests/test.yaml", "./tests/values.yaml")
+    with pytest.raises(SystemExit):
+        vault.main(['lint', '-f', './tests/values.yaml', './tests/helm/bad_chart'])
+    os.remove("./tests/values.yaml")
