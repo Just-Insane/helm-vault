@@ -224,7 +224,6 @@ class Vault:
             print(f"ERROR: {ex}")
 
     def process_mount_point_and_path(self, full_path, path, key):
-        print(full_path)
         if full_path is not None:
           # vault_base_path overrides all other paths and uses full_path to finish the path
           if self.envs.vault_base_path != "":
@@ -243,7 +242,6 @@ class Vault:
             else:
                 mount_point =  self.envs.vault_path.split('/')[0]
         else:
-            print("No full_path")
             mount_point = self.envs.vault_mount_point
             _path = f"{self.envs.vault_path}/{self.folder}{path}/{key}"
 
