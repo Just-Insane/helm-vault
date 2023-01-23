@@ -295,6 +295,9 @@ class Vault:
                 print("Wrong KV Version specified, either v1 or v2")
         except AttributeError as ex:
             print(f"Vault not configured correctly, check VAULT_ADDR and VAULT_TOKEN env variables. {ex}")
+        except hvac.exceptions.InvalidPath as ex:
+            print(f"Invalid Vault Path: /{mount_point}/{_path}")
+            sys.exit(2)
         except Exception as ex:
             print(f"Error: {ex}")
 
