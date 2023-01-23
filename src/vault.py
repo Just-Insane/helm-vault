@@ -38,6 +38,8 @@ def parse_args(args):
     encrypt.add_argument("-d", "--deliminator", type=str, help="The secret deliminator used when parsing. Default: \"changeme\"")
     encrypt.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     encrypt.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault) Default: \"secret/helm\"")
+    encrypt.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     encrypt.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     encrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v2\"")
     encrypt.add_argument("-s", "--secret-file", type=str, help="File containing the secret for input. Must end in .yaml.dec")
@@ -51,6 +53,8 @@ def parse_args(args):
     decrypt.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     decrypt.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     decrypt.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    decrypt.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     decrypt.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     decrypt.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
     decrypt.add_argument("-e", "--environment", type=str, help="Allows for secrets to be decoded on a per environment basis")
@@ -68,6 +72,8 @@ def parse_args(args):
     view.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     view.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     view.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    view.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     view.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     view.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
@@ -78,6 +84,8 @@ def parse_args(args):
     edit.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     edit.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     edit.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    edit.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     edit.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     edit.add_argument("-ed", "--editor", help="Editor name. Default: (Linux/MacOS) \"vi\" (Windows) \"notepad\"", const=True, nargs="?")
     edit.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
@@ -89,6 +97,8 @@ def parse_args(args):
     install.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     install.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     install.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    install.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     install.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     install.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
     install.add_argument("-e", "--environment", type=str, help="Environment whose secrets to use")
@@ -100,6 +110,8 @@ def parse_args(args):
     template.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     template.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     template.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    template.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     template.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     template.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
@@ -110,6 +122,8 @@ def parse_args(args):
     upgrade.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     upgrade.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     upgrade.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    upgrade.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     upgrade.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     upgrade.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
@@ -120,6 +134,8 @@ def parse_args(args):
     lint.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     lint.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     lint.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    lint.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     lint.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     lint.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
@@ -130,6 +146,8 @@ def parse_args(args):
     diff.add_argument("-vt", "--vaulttemplate", type=str, help="Substring with path to vault key instead of deliminator. Default: \"VAULT:\"")
     diff.add_argument("-mp", "--mountpoint", type=str, help="The Vault Mount Point Default: \"secret/data\"")
     diff.add_argument("-vp", "--vaultpath", type=str, help="The Vault Path (secret mount location in Vault). Default: \"secret/helm\"")
+    diff.add_argument("-vtp", "--vaulttemplatepath", type=str,
+                         help="A preifx to use when retrieving values based on their vaulttemplate value. Default: \"\"")
     diff.add_argument("-kv", "--kvversion", choices=['v1', 'v2'], type=str, help="The KV Version (v1, v2) Default: \"v1\"")
     diff.add_argument("-v", "--verbose", help="Verbose logs", const=True, nargs="?")
 
@@ -153,6 +171,7 @@ class Envs:
         self.vault_addr = os.environ["VAULT_ADDR"]
         self.vault_mount_point = self.get_env("VAULT_MOUNT_POINT", "mountpoint", "secret")
         self.vault_path = self.get_env("VAULT_PATH", "vaultpath", "secret/helm")
+        self.vault_base_path = self.get_env("VAULT_TEMPLATE_PATH", "vaulttemplatepath", "")
         self.secret_delim = self.get_env("SECRET_DELIM", "deliminator", "changeme")
         self.secret_template = self.get_env("SECRET_TEMPLATE", "vaulttemplate", "VAULT:")
         self.kvversion = self.get_env("KVVERSION", "kvversion", "v1")
@@ -205,14 +224,24 @@ class Vault:
             print(f"ERROR: {ex}")
 
     def process_mount_point_and_path(self, full_path, path, key):
-        if full_path is not None:
+        # vault_base_path overrides all other paths and uses full_path to finish the path
+        if self.envs.vault_base_path != "":
+            # If it starts with /, treat it as the mount_point + path
+            if self.envs.vault_base_path.startswith('/'):
+                mount_point = self.envs.vault_base_path.split('/')[1]
+                _path = f"{'/'.join(self.envs.vault_base_path.split('/')[2:])}/{full_path}"
+            else:
+                mount_point =  self.envs.vault_mount_point
+                _path = f"{self.envs.vault_base_path}/{full_path}"
+        elif full_path is not None:
             _path = full_path
             if _path.startswith('/'):
                 mount_point = _path.split('/')[1]
                 _path = '/'.join(_path.split('/')[2:])
             else:
-                mount_point = self.envs.vault_path.split('/')[0]
+                mount_point =  self.envs.vault_path.split('/')[0]
         else:
+            print("No full_path")
             mount_point = self.envs.vault_mount_point
             _path = f"{self.envs.vault_path}/{self.folder}{path}/{key}"
 
@@ -253,7 +282,7 @@ class Vault:
         try:
             if self.args.verbose is True:
                 print(f"Using KV Version: {self.kvversion}")
-                print(f"Attempting to write to url: {self.envs.vault_addr}/v1/{mount_point}/data{_path}")
+                print(f"Attempting to read from url: {self.envs.vault_addr}/v1/{mount_point}/data/{_path}")
             if self.kvversion in ['v1', 'v2']:
                 if self.kvversion == "v1":
                     value = self.client.read(_path)
