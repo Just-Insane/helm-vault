@@ -224,16 +224,18 @@ class Vault:
             print(f"ERROR: {ex}")
 
     def process_mount_point_and_path(self, full_path, path, key):
-        # vault_base_path overrides all other paths and uses full_path to finish the path
-        if self.envs.vault_base_path != "":
-            # If it starts with /, treat it as the mount_point + path
-            if self.envs.vault_base_path.startswith('/'):
-                mount_point = self.envs.vault_base_path.split('/')[1]
-                _path = f"{'/'.join(self.envs.vault_base_path.split('/')[2:])}/{full_path}"
-            else:
-                mount_point =  self.envs.vault_mount_point
-                _path = f"{self.envs.vault_base_path}/{full_path}"
-        elif full_path is not None:
+        print(full_path)
+        if full_path is not None:
+          # vault_base_path overrides all other paths and uses full_path to finish the path
+          if self.envs.vault_base_path != "":
+              # If it starts with /, treat it as the mount_point + path
+              if self.envs.vault_base_path.startswith('/'):
+                  mount_point = self.envs.vault_base_path.split('/')[1]
+                  _path = f"{'/'.join(self.envs.vault_base_path.split('/')[2:])}/{full_path}"
+              else:
+                  mount_point =  self.envs.vault_mount_point
+                  _path = f"{self.envs.vault_base_path}/{full_path}"
+          else:
             _path = full_path
             if _path.startswith('/'):
                 mount_point = _path.split('/')[1]
