@@ -28,7 +28,7 @@ jobs:
     
     services:
       vault:
-        image: vault
+        image: hashicorp/vault
         ports:
           - 8200:8200
         env:
