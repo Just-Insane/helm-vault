@@ -141,7 +141,7 @@ for running tests using docker, you can use the following command:
 
 Unittesting and integration testing is automatically run via Github Actions on commit and PRs.
 
-Additionally, code quality checking is handled by LGTM.com
+Additionally, code quality checking is handled by CodeQL.
 
 Both of these checks must pass before PRs will be merged.
 

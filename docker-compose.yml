@@ -2,7 +2,7 @@ version: "3.5"
 services:
   vault:
     container_name: helm-vault
-    image: vault
+    image: hashicorp/vault
     ports:
       - 8200:8200
     environment:
