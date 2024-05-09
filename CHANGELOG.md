@@ -1,5 +1,13 @@
 # CHANGELOG.md
 
+## 0.3.1 (2024-05-09)
+
+Fix:
+
+- Update GitPython [fixes #55]
+- Update to CodeQL from LGTM.com
+- Move from `vault` Docker container to `hashicorp/vault` in automated tests
+
 ## 0.3.0 (2021-03-17)
 
 Features:
