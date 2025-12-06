@@ -1,3 +1,29 @@
+⚠️ Deprecation Notice
+
+This repository is no longer actively maintained.
+
+The project was created for an earlier version of its dependencies and has not been updated in several years. As a result, it may no longer function as intended and is not recommended for production use.
+
+What this means:
+
+No further updates, bug fixes, or security patches will be provided
+
+Issues and pull requests may not be reviewed or merged
+
+Compatibility with current platforms, libraries, or APIs is not guaranteed
+
+What you can do:
+
+Fork this repository if you’d like to continue development
+
+Use it for reference, learning, or experimentation at your own risk
+
+Consider alternative, actively maintained projects for production use
+
+Thank you to everyone who has used, contributed to, or supported this project 💜
+
+— Maintainers
+
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Just-Insane/helm-vault) 
 
 [![License](https://img.shields.io/github/license/Just-Insane/helm-vault.svg)](https://github.com/Just-Insane/helm-vault/blob/master/LICENSE)
@@ -85,7 +111,7 @@ Build Status:
 
 [![CI](https://github.com/Just-Insane/helm-vault/actions/workflows/main.yml/badge.svg)](https://github.com/Just-Insane/helm-vault/actions/workflows/main.yml)
 
-Helm-Vault is in a production state. It should work across platforms, and should be able to handle most YAML thrown at it.
+Helm-Vault is in a **depreciated state**. It is no longer maintained and has not been updated in several years.
 
 **[Back to top](#table-of-contents)**
 
@@ -497,7 +523,7 @@ $ helm vault diff upgrade nextcloud stable/nextcloud -f values.yaml
 
 # Release Process
 
-Releases are made for new features, and bugfixes.
+Releases are made for new features, and bug-fixes.
 
 To get a new release, run the following:
 
